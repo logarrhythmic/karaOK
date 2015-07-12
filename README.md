@@ -15,9 +15,14 @@ The variable ln will now be a table that contains the following functions:
 Takes the tenv variable from the karaoke templater, to allow the library to directly read the current line and syllable and other such things.
 
 
-    ln.line.tags(list)
+    ln.line.tag(list)
  
 Returns a string containing the first match found in the currently processed line for each of the tags listed in the list given as an argument. You can also call this with just a string defining one tag.
+
+
+    ln.line.tags(list)
+ 
+Same as above, but returns all matches for each tag. Useful for transforms.
 
 
     ln.line.c(n)
