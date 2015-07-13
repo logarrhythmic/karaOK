@@ -187,7 +187,6 @@ lnlib = {
 			end
 		end,
 		move = function(xoff1, yoff1, time0, time1, alignment, anchorpoint, xoff0, yoff0, line_kara_mode)
-			if time0 == 0 and time1 == tenv.line.duration then time0 = nil time1 = nil end
 			alignment = alignment or tenv.line.styleref.align or 5
 			anchorpoint = anchorpoint or tenv.line.styleref.align or 5
 			xoff0 = xoff0 or 0
