@@ -758,6 +758,7 @@ function apply_one_syllable_template(syl, line, template, tenv, varctx, subs, sk
 			charsyl.text_spacestripped = c
 			charsyl.prespace, charsyl.postspace = "", "" -- for whatever anyone might use these for
 			width = aegisub.text_extents(syl.style, c)
+			--tenv.syl.ci = ci
 			charsyl.ci = ci
 			charsyl.left = left
 			charsyl.center = left + width/2
