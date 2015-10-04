@@ -214,6 +214,52 @@ HSL2RGB = function(h, s, l)
 	return 255*(r+m),255*(g+m),255*(b+m)
 end
 
+function formtag(tag, argumentlist)
+    if type(argumentlist) ~= "table" then argumentlist = { argumentlist } end;
+    local argstring = argumentlist[1];
+    if #argumentlist == 1 then
+        if type(argstring) == "number" then
+            if tag == "alpha" or tag == "a" or tag == "1a" or tag == "2a" or tag == "3a" or tag == "4a" then
+                return "\\" .. tag .. string.format("&H%02X&", argstring);
+            else
+                return "\\" .. tag .. string.format("%.2f", argstring);
+            end
+        else
+            return "\\" .. tag .. argstring;
+        end
+    end
+    for i = 2, #argumentlist do
+        if type(argumentlist[i]) == "number" then
+            argstring = argstring .. ", " .. string.format("%.2f", argumentlist[i]);
+        else
+            argstring = argstring .. ", " .. argumentlist[i];
+        end
+    end;
+    return "\\" .. tag .. "(" .. argstring .. ")";
+end
+
+function formtags(taglist, argumentlist)
+    if type(taglist) ~= "table" then taglist = { taglist } end
+    if type(argumentlist) ~= "table" then argumentlist = { argumentlist } end
+    local tagstring = ""
+    for i=1, #taglist do
+		if taglist[i] == "alpha" or taglist[i] == "a" or taglist[i] == "1a" or taglist[i] == "2a" or taglist[i] == "3a" or taglist[i] == "4a" then
+			tagstring = tagstring .. formtag(taglist[i], string.format("&H%x&",argumentlist[((i-1)%#argumentlist)+1]))
+		else
+			tagstring = tagstring .. formtag(taglist[i], argumentlist[((i-1)%#argumentlist)+1])
+		end
+	end
+    return tagstring
+end
+
+function calcTable(functions, value)
+    local outt = {}
+    for i = 1, #functions do
+        outt[i] = functions[i](value)
+    end
+    return outt
+end
+
 lnlib = {
 	init = function(tv)
 		tenv = tv
@@ -468,6 +514,75 @@ lnlib = {
 		end
 	},
 	
+	wave = {
+		new = function()
+			local ftable = {}
+			return {
+				addWave = function(waveform, wavelength, amplitude, phase)
+					if waveform == "noise" or waveform == "random" then
+						local randomvalues = {}
+						math.randomseed(wavelength)
+						for i = 1, wavelength do
+							randomvalues[math.floor(i+phase % wavelength)] = amplitude * (math.random() * 2 - 1)
+						end
+						table.insert(ftable, {form="noise", w=wavelength,a=amplitude,p=phase, val=randomvalues})
+					else
+						table.insert(ftable, {form=waveform, w=wavelength,a=amplitude,p=phase})
+					end
+				end,
+
+				addCurve = function(func)
+					table.insert(ftable, {form="function", f = func})
+				end,
+
+				getValue = function(time)
+					local y = 0
+					for key,wave in pairs(ftable) do
+						if wave.form == "noise" then
+							y = y + wave.val[math.floor((time % wave.w) + 1)];
+						elseif wave.form == "square" then
+							y = y + wave.a * 2 * (0.5 - math.floor(((time / wave.w + wave.p) * 2 )) % 2)
+						elseif wave.form == "triangle" then
+							y = y + wave.a * (math.abs(((time / wave.w + wave.p - 0.25) % 1) * 4 - 2) - 1)
+						elseif wave.form == "sawtooth" then
+							y = y + wave.a * a * (((time / wave.w + wave.p - 0.5) % 1)*2 - 1)
+						elseif wave.form == "function" then
+							y = y + wave.f(time)
+						else
+							y = y + wave.a * math.sin(time*math.pi*2/wave.w + wave.p*math.pi/2)
+						end
+					end
+					return y
+				end
+			}
+		end,
+		
+		transform = function(wave, starttime, endtime, tags, phaseshift, framestep, jumpToStartingPosition, modifierFunctions, dutyCycle)
+			framestep = framestep or 1
+			dutyCycle = dutyCycle or 1
+			starttime = starttime or 0
+			endtime = endtime or tenv.line.duration
+			--aegisub.log("shake starttime is: ".. starttime .. " and endtime: ".. endtime .."\n")
+			if modifierFunctions == nil then
+				modifierFunctions = {function(x) return x end}
+			end
+			if phaseshift == nil then phaseshift = 0 end
+
+			jumpToStartingPosition = jumpToStartingPosition or true
+
+			local timestep = framestep * 1000 / 23.976
+			local tfstring = ""
+			if jumpToStartingPosition then
+				tfstring = tfstring .. lnlib.tag.t(starttime, starttime + 1, 1, formtags(tags, calcTable(modifierFunctions, wave.getValue(starttime + phaseshift))))
+			end
+			for i = starttime, endtime - 1, timestep do
+				local accel = lnlib.math.clamp(lnlib.math.log(0.5, math.abs((wave.getValue(i + timestep / 2 + phaseshift) - wave.getValue(i + phaseshift)) / (wave.getValue(i + timestep + phaseshift) - wave.getValue(i + phaseshift)))),0.15, 8);
+				tfstring = tfstring .. lnlib.tag.t(i, i + timestep*dutyCycle + 1, accel, formtags(tags, calcTable(modifierFunctions, wave.getValue(i + timestep + phaseshift))))
+			end
+			return tfstring
+		end
+	},
+	
 	color = {
 		byRGB = function(r,g,b)
 			return string.format("&H%02X%02X%02X&",b,g,r)
@@ -552,6 +667,9 @@ lnlib = {
 		end,
 		modloop = function(n,min,max)
 			return (n-min) % (max-min)
+		end,
+		log = function(base,n)
+			return math.log(n)/math.log(base)
 		end
 	},
 	
