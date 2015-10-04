@@ -31,11 +31,19 @@
 -- Parse and apply a karaoke effect written in ASS karaoke template language
 -- See help file and wiki for more information on this
 
+--[[
+ List of naughty unauthorized unofficial modifications by logarithm:
+  - gave the execution environment access to the subtitles object
+  - made notext and noblank modifiers work with pre-line templates and non-k-timed lines like they do with other template types(maybe some other stuff too)
+  - added variable ci, available with by-char templates, which tells which letter of the current syllable is being processed
+  - increased inline variable positioning precision to .1 pixel
+]]
+
 local tr = aegisub.gettext
 
 script_name = tr"Karaoke Templater fix"
 script_description = tr"Macro and export filter to apply karaoke effects using the template language"
-script_author = "Niels Martin Hansen, fix logarithm"
+script_author = "Niels Martin Hansen, mods by logarithm"
 script_version = "2.1.7b"
 
 
@@ -457,14 +465,14 @@ function set_ctx_syl(varctx, line, syl)
 	varctx.mid = varctx.smid
 	varctx.si = syl.i
 	varctx.i = varctx.si
-	varctx.sleft = math.floor(line.left + syl.left+0.5)
-	varctx.scenter = math.floor(line.left + syl.center+0.5)
-	varctx.sright = math.floor(line.left + syl.right+0.5)
-	varctx.swidth = math.floor(syl.width + 0.5)
+	varctx.sleft = math.floor((line.left + syl.left)*10+0.5)/10
+	varctx.scenter = math.floor((line.left + syl.center)*10+0.5)/10
+	varctx.sright = math.floor((line.left + syl.right)*10+0.5)/10
+	varctx.swidth = math.floor(syl.width*10 + 0.5)/10
 	if syl.isfuri then
 		varctx.sbottom = varctx.ltop
-		varctx.stop = math.floor(varctx.ltop - syl.height + 0.5)
-		varctx.smiddle = math.floor(varctx.ltop - syl.height/2 + 0.5)
+		varctx.stop = math.floor((varctx.ltop - syl.height)*10 + 0.5)/10
+		varctx.smiddle = math.floor((varctx.ltop - syl.height/2)*10 + 0.5)/10
 	else
 		varctx.stop = varctx.ltop
 		varctx.smiddle = varctx.lmiddle
@@ -472,11 +480,11 @@ function set_ctx_syl(varctx, line, syl)
 	end
 	varctx.sheight = syl.height
 	if line.halign == "left" then
-		varctx.sx = math.floor(line.left + syl.left + 0.5)
+		varctx.sx = math.floor((line.left + syl.left)*10+0.5)/10
 	elseif line.halign == "center" then
-		varctx.sx = math.floor(line.left + syl.center + 0.5)
+		varctx.sx = math.floor((line.left + syl.center)*10+0.5)/10
 	elseif line.halign == "right" then
-		varctx.sx = math.floor(line.left + syl.right + 0.5)
+		varctx.sx = math.floor((line.left + syl.right)*10+0.5)/10
 	end
 	if line.valign == "top" then
 		varctx.sy = varctx.stop

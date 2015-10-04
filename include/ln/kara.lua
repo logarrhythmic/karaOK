@@ -1,4 +1,5 @@
 util = require 'aegisub.util'
+unicode = require 'unicode'
 
 matchfloat = "%-?%f[%.%d]%d*%.?%d*%f[^%.%d%]]"
 
@@ -228,7 +229,7 @@ lnlib = {
 	chari = function()
 		local out = 0
 		for i=1,tenv.syl.i-1 do
-			out = out + #tenv.line.kara[i].text_stripped
+			out = out + unicode.len(tenv.line.kara[i].text_stripped)
 		end
 		return (tenv.syl.ci or 1) + out
 	end,
@@ -312,13 +313,22 @@ lnlib = {
 				buffers[tenv.line.start_time] = buf
 			end
 			return buf.sb,buf.eb
+		end,
+		len_stripped = function()
+			return unicode.len(tenv.line.text_stripped)
+		end,
+		len = function()
+			return unicode.len(tenv.line.text)
+		end,
+		len_raw = function()
+			return unicode.len(tenv.line.raw)
 		end
 	},
 	
 	tag = {
 		pos = function(alignment, anchorpoint, xoffset, yoffset, line_kara_mode)
 			alignment = alignment or tenv.line.styleref.align or 5
-			anchorpoint = anchorpoint or tenv.line.styleref.align or 5
+			anchorpoint = anchorpoint or alignment or tenv.line.styleref.align or 5
 			xoffset = xoffset or 0
 			yoffset = yoffset or 0
 			local x,y
