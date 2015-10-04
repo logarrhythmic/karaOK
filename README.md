@@ -130,4 +130,4 @@ Returns min if value is below min, max if value is over max, or value otherwise.
 
 	ln.math.modloop(value, min, max)
 
-Returns a value that has been moved to the specified range by substracting or adding the range's width to it enough times - for example 5.6,0,1 would return 5.6-5*1=0.6, and 7,40,52 would return 7+3*12=43. As a more practical example, modloop(789,-180,180) will get you 69 which can be used to keep angles in a nice range.
+Returns a value that has been moved to the specified range by substracting or adding the range's width to it enough times - for example 5.6,0,1 would return 5.6-5x1=0.6, and 7,40,52 would return 7+3x12=43. As a more practical example, modloop(789,-180,180) will get you 69 which can be used to keep angles in a nice range.
