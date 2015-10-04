@@ -254,6 +254,7 @@ end
 
 function calcTable(functions, value)
     local outt = {}
+	if type(functions) ~= table then functions = {functions} end
     for i = 1, #functions do
         outt[i] = functions[i](value)
     end
