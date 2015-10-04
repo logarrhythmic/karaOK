@@ -77,7 +77,7 @@ Creates \an and \move tags. Calling this with only xoff1 and yoff1 defined will 
 	
 	ln.tag.t(a1, a2, a3, a4)
 	
-Creates a transform tag, works exactly like simply writing out the transform tag in the templater like \(!a1!,!a2!,!a3!,!a4!) - except it rounds the times to a sane precision. Putting in fewer variables works the same way as a transform tag too. Useful because you don't have to write as many exclamation points.
+Creates a transform tag, works exactly like simply writing out the transform tag in the templater like \t(!a1!,!a2!,!a3!,!a4!) - except it rounds the times to a sane precision. Putting in fewer variables works the same way as a transform tag too. Useful because you don't have to write as many exclamation points.
 
 
 	ln.tag.parse_transform(tag)
