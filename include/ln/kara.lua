@@ -522,7 +522,7 @@ lnlib = {
 				addWave = function(waveform, wavelength, amplitude, phase)
 					if waveform == "noise" or waveform == "random" then
 						local randomvalues = {}
-						math.randomseed(wavelength)
+						math.randomseed(phase)
 						for i = 1, wavelength do
 							randomvalues[math.floor(i+phase % wavelength)] = amplitude * (math.random() * 2 - 1)
 						end
@@ -532,7 +532,7 @@ lnlib = {
 					end
 				end,
 
-				addCurve = function(func)
+				addFunction = function(func)
 					table.insert(ftable, {form="function", f = func})
 				end,
 
@@ -550,7 +550,7 @@ lnlib = {
 						elseif wave.form == "function" then
 							y = y + wave.f(time)
 						else
-							y = y + wave.a * math.sin(time*math.pi*2/wave.w + wave.p*math.pi/2)
+							y = y + wave.a * math.sin(time*math.pi*2/wave.w + wave.p*math.pi*2)
 						end
 					end
 					return y
