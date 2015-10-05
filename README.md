@@ -108,15 +108,20 @@ Creates a new table to store the wave function you're creating.
 	waveX.addWave(waveform, wavelength, amplitude, phase)
 
 Adds an elementary waveform or white noise to the wave function. 
+
 ```waveform``` can be any of: ```noise``` or ```random```, ```sine```, ```square```, ```triangle``` and ```sawtooth```. If you don't know what these waves look like, google them.
+
 ```wavelength``` is the length of one period in milliseconds. The white noise is periodic too. If you want more random noise, see the next function and use a math.random() there.
+
 ```amplitude``` is the amplitude of the waveform. ```1```, for example, will get you a maximum value of ```1``` and a minimum value of ```-1```.
+
 ```phase``` is the phase shift, in periods, applied to the waveform. Negative values will delay the waveform, positive values will do the opposite. For noise, this value instead seeds the random number generator.
 
 
 	waveX.addFunction(func)
 	
 Adds a user defined function to the wave function. ```func``` must be a function that takes a single value, time.
+
 Example: ```!waveX.addFunction(function(t) return _G.math.random()*2-1 end)!``` will work as noise. ```!waveX.addFunction(function(t) return t*t end)!``` will make an upwards-opening parabola.
 
 
@@ -128,6 +133,7 @@ Gets the value of the wave function at ```time```.
 	ln.wave.transform(wave, starttime, endtime, tags, phaseshift, framestep, jumpToStartingPosition, modifierFunctions, dutyCycle)
 	
 Creates a set of transforms according to a wave function.
+
 Tutorial coming soon, I think I should get on that signal processing assignment now
 
 ## color table - fancy fairy magic
@@ -145,6 +151,7 @@ Creates an ASS color value string for override tags. h, s and l are hue, saturat
     ln.color.lumaHSL(h,s,l)
 
 Creates an ASS color value string for override tags. h, s and l are hue, saturation and luma values between 0 and 255. The values are in this range to be consistent with Aegisub's color picker.
+
 This differs from the normal HSL function by preserving perceived brightness of the color between different hues. The human eye sees green as much brighter than blue, for example. TV.709 values are used.
 
 
