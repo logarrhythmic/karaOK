@@ -154,6 +154,7 @@ Example: with a sine wave set to an amplitude of 30, ```ln.wave.transform(..., {
 ```dutyCycle``` is a number value between 0 and 1 that dictates how much of each step the transform is active. With 1, ```framestep``` values above 1 will animate smoothly, and with values near 0 they will jump to the given value near-instantly - might be useful if you want a lower framerate than on the video for some reason. 
 
 Example of use:
+
 	code: waveS = ln.wave.new(); waveC = ln.wave.new();
 	code: waveS.addWave("sine", 1000, 10, 0); waveC.addWave("sine", 1000, 10, 0.25)
 	template: {\pos($x,$y)!ln.wave.transform(waveC, "xshad", nil, nil, 0, 3)!!ln.wave.transform(waveS, "yshad", nil, nil, 0, 3)!}
