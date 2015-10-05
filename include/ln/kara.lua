@@ -558,27 +558,27 @@ lnlib = {
 			}
 		end,
 		
-		transform = function(wave, starttime, endtime, tags, phaseshift, framestep, jumpToStartingPosition, modifierFunctions, dutyCycle)
+		transform = function(wave, tags, starttime, endtime, delay, framestep, jumpToStartingPosition, modifierFunctions, dutyCycle)
 			framestep = framestep or 1
-			dutyCycle = dutyCycle or 1
+			dutyCycle = dutyCycle or 0.2
 			starttime = starttime or 0
 			endtime = endtime or tenv.line.duration
 			--aegisub.log("shake starttime is: ".. starttime .. " and endtime: ".. endtime .."\n")
 			if modifierFunctions == nil then
 				modifierFunctions = {function(x) return x end}
 			end
-			if phaseshift == nil then phaseshift = 0 end
+			if delay == nil then delay = 0 end
 
 			jumpToStartingPosition = jumpToStartingPosition or true
 
 			local timestep = framestep * 1000 / 23.976
 			local tfstring = ""
 			if jumpToStartingPosition then
-				tfstring = tfstring .. lnlib.tag.t(starttime, starttime + 1, 1, formtags(tags, calcTable(modifierFunctions, wave.getValue(starttime + phaseshift))))
+				tfstring = tfstring .. lnlib.tag.t(starttime, starttime + 1, 1, formtags(tags, calcTable(modifierFunctions, wave.getValue(starttime - delay))))
 			end
 			for i = starttime, endtime - 1, timestep do
-				local accel = lnlib.math.clamp(lnlib.math.log(0.5, math.abs((wave.getValue(i + timestep / 2 + phaseshift) - wave.getValue(i + phaseshift)) / (wave.getValue(i + timestep + phaseshift) - wave.getValue(i + phaseshift)))),0.15, 8);
-				tfstring = tfstring .. lnlib.tag.t(i, i + timestep*dutyCycle + 1, accel, formtags(tags, calcTable(modifierFunctions, wave.getValue(i + timestep + phaseshift))))
+				local accel = lnlib.math.clamp(lnlib.math.log(0.5, math.abs((wave.getValue(i + timestep / 2 - delay) - wave.getValue(i - delay)) / (wave.getValue(i + timestep - delay) - wave.getValue(i - delay)))),0.15, 8);
+				tfstring = tfstring .. lnlib.tag.t(i, i + timestep*dutyCycle + 1, accel, formtags(tags, calcTable(modifierFunctions, wave.getValue(i + timestep - delay))))
 			end
 			return tfstring
 		end
