@@ -1,5 +1,5 @@
-# karalog
-Aegisub KFX library
+# liberacion
+Aegisub KFX library to liberate you from messy code written across dozens of template and code lines without proper linebreaks, and to provide utilities
 
 # Usage
 Intended usage is loading into the karatemplater with a line like
@@ -95,6 +95,16 @@ tag_mod works like this:
 	<symbol><string>
 Symbol can once again be -, + or =. + adds the string to the tag string, - deletes all instances of the string from the tag string, and = or no prefix sets the tag string.
 
+## wave table - pushing the limits of ASS
+
+	waveX = ln.wave.new()
+
+Creates a new table to store the wave function you're creating.
+
+
+	waveX.addWave(waveform, wavelength, amplitude, phase)
+
+Adds an elementary waveform or white noise to the wave function. ```waveform```
 
 ## color table - fancy fairy magic
 
