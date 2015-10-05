@@ -161,7 +161,7 @@ Example of use (run on an \an5 line):
 	template: {\4c&H00FFFF&\pos($x,$y)!ln.wave.transform(waveC, "xshad", nil, nil, 0, 3, false, nil, 1)!!ln.wave.transform(waveS, "yshad", nil, nil, 0, 3, false, nil, 1)!} {this will be smooth but not an exact circle}
 	template: {\4c&H00FF00&\pos($x,$y)!ln.wave.transform(waveC, "xshad", nil, nil, 0, 1, false, nil, 1)!!ln.wave.transform(waveS, "yshad", nil, nil, 0, 1, false, nil, 1)!} {this will be smooth and closer to an exact circle, pretty much perfect on ~24fps}
 
-Try out lower ```framestep``` values on the second line and see what happens. High values seem to make the shadow jump around on the circlem and even 3 still jumps around a bit when used for going in circles like this, but 2 starts to look really convincing.
+Try out lower ```framestep``` values on the second template line and see what happens. High values seem to make the shadow jump around on the circle, and even 3 still jumps around a tiny bit when used for going in circles like this, but 2 starts to look really convincing.
 
 ## color table - fancy fairy magic
 
