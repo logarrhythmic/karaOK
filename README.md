@@ -148,16 +148,20 @@ Creates a set of transforms according to a wave function.
 
 ```jumpToStartingPosition``` is a boolean value. If true, the function will generate an instant (technically 1ms) transform at ```starttime``` to jump the affected values to the correct number instantly. Without this it'll blend in a bit smoother, but might look bad in some cases. If left empty/nil, defaults to false.
 
-```modifierFunctions``` is a table of functions to run the waveform's values through. The functions are run for the value of the corresponding tag in ```tags```. Useful for using the same waveform on several different tags, such as scale and shear at the same time - one takes values around 100 and the other around 0. Will loop around to start with the first function again if there are less functions than tags to run on. 
+```modifierFunctions``` is a table of functions to run the waveform's values through. The functions are run for the value of the corresponding tag in ```tags```. Useful for using the same waveform on several different tags, such as scale and shear at the same time - one takes values around 100 and the other around 0. Will loop around to start with the first function again if there are less functions than tags to run on. If left empty/nil, defaults to f(x)=x.
 Example: with a sine wave set to an amplitude of 30, ```ln.wave.transform(..., {"fscy","fax"},..., {function(x) return 120+x end function(x) return x/40 end},...)``` to make an effect that looks like wheat swaying (maybe, I didn't look to check).
 
-```dutyCycle``` is a number value between 0 and 1 that dictates how much of each step the transform is active. With 1, ```framestep``` values above 1 will animate smoothly, and with values near 0 they will jump to the given value near-instantly - might be useful if you want a lower framerate than on the video for some reason. 
+```dutyCycle``` is a number value between 0 and 1 that dictates how much of each step the transform is active. With 1, ```framestep``` values above 1 will animate smoothly, and with values near 0 they will jump to the given value near-instantly - might be useful if you want a lower framerate than on the video for some reason. If left empty/nil, defaults to 0.2.
 
-Example of use:
+Example of use (run on an \an5 line):
 
 	code: waveS = ln.wave.new(); waveC = ln.wave.new();
-	code: waveS.addWave("sine", 1000, 10, 0); waveC.addWave("sine", 1000, 10, 0.25)
-	template: {\pos($x,$y)!ln.wave.transform(waveC, "xshad", nil, nil, 0, 3)!!ln.wave.transform(waveS, "yshad", nil, nil, 0, 3)!}
+	code: waveS.addWave("sine", 1000, 40, 0); waveC.addWave("sine", 1000, 40, 0.25)
+	template: {\4c&H0000FF&\pos($x,$y)!ln.wave.transform(waveC, "xshad", nil, nil, 0, 3)!!ln.wave.transform(waveS, "yshad", nil, nil, 0, 3)!} {this will be jerky due to the default dutyCycle of 0.2}
+	template: {\4c&H00FFFF&\pos($x,$y)!ln.wave.transform(waveC, "xshad", nil, nil, 0, 3, false, nil, 1)!!ln.wave.transform(waveS, "yshad", nil, nil, 0, 3, false, nil, 1)!} {this will be smooth but not an exact circle}
+	template: {\4c&H00FF00&\pos($x,$y)!ln.wave.transform(waveC, "xshad", nil, nil, 0, 1, false, nil, 1)!!ln.wave.transform(waveS, "yshad", nil, nil, 0, 1, false, nil, 1)!} {this will be smooth and closer to an exact circle, pretty much perfect on ~24fps}
+
+Try out lower ```framestep``` values on the second line and see what happens. High values seem to make the shadow jump around on the circlem and even 3 still jumps around a bit when used for going in circles like this, but 2 starts to look really convincing.
 
 ## color table - fancy fairy magic
 
