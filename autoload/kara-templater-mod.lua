@@ -264,7 +264,7 @@ function parse_template(meta, styles, line, templates, mods)
 				template.fxgroup = fx
 				rest = t
 			else
-				aegisub.debug.out(3, "No fxgroup name following fxgroup modifier\nIn template linee: %s\nEffect field: %s\n\n", line.text, line.effect)
+				aegisub.debug.out(3, "No fxgroup name following fxgroup modifier\nIn template line: %s\nEffect field: %s\n\n", line.text, line.effect)
 				template.fxgroup = nil
 			end
 		elseif m == "style" then
@@ -273,7 +273,7 @@ function parse_template(meta, styles, line, templates, mods)
 				template.stylegroup = style
 				rest = t
 			else
-				aegisub.debug.out(3, "No style matching string following style modifier\nIn template linee: %s\nEffect field: %s\n\n", line.text, line.effect)
+				aegisub.debug.out(3, "No style matching string following style modifier\nIn template line: %s\nEffect field: %s\n\n", line.text, line.effect)
 				template.stylegroup = nil
 			end
 		else
@@ -301,7 +301,7 @@ function matching_templates(templates, line, tenv)
 				(not t.fxgroup or
 				(t.fxgroup and tenv.fxgroup[t.fxgroup] ~= false)) and
 				(not t.stylegroup or
-				(line.style:match(t.stylegroup) ~= false))then
+				(line.style:match(t.stylegroup)))then
 			return t
 		else
 			return test_next()
