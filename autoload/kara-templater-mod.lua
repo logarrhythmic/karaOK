@@ -6,13 +6,13 @@
  modification, are permitted provided that the following conditions are met:
 
    * Redistributions of source code must retain the above copyright notice,
-     this list of conditions and the following disclaimer.
+	 this list of conditions and the following disclaimer.
    * Redistributions in binary form must reproduce the above copyright notice,
-     this list of conditions and the following disclaimer in the documentation
-     and/or other materials provided with the distribution.
+	 this list of conditions and the following disclaimer in the documentation
+	 and/or other materials provided with the distribution.
    * Neither the name of the Aegisub Group nor the names of its contributors
-     may be used to endorse or promote products derived from this software
-     without specific prior written permission.
+	 may be used to endorse or promote products derived from this software
+	 without specific prior written permission.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -102,7 +102,7 @@ function parse_code(meta, styles, line, templates, mods)
 			aegisub.debug.out(5, "Found per-line code line: %s\n", line.text)
 			table.insert(templates.line, template)
 			inserted = true
-        elseif m == "word" then
+		elseif m == "word" then
 			aegisub.debug.out(5, "Found per-word code line: %s\n", line.text)
 			table.insert(templates.word, template)
 			inserted = true
@@ -114,7 +114,7 @@ function parse_code(meta, styles, line, templates, mods)
 			aegisub.debug.out(5, "Found per-syl code line: %s\n", line.text)
 			table.insert(templates.furi, template)
 			inserted = true
-        elseif m == "char" then
+		elseif m == "char" then
 			aegisub.debug.out(5, "Found per-char code line: %s\n", line.text)
 			table.insert(templates.char, template)
 			inserted = true
@@ -138,9 +138,9 @@ function parse_code(meta, styles, line, templates, mods)
 		end
 	end
 	
-    if not inserted then
-        aegisub.debug.out(5, "Found implicit run-once code line: %s\n", line.text)
-        table.insert(templates.once, template)
+	if not inserted then
+		aegisub.debug.out(5, "Found implicit run-once code line: %s\n", line.text)
+		table.insert(templates.once, template)
 	end
 end
 
@@ -164,8 +164,8 @@ function parse_template(meta, styles, line, templates, mods)
 		fx = nil,
 		multi = false,
 		isline = false,
-        perword = false,
-        persyl = false,
+		perword = false,
+		persyl = false,
 		perchar = false,
 		noblank = false
 	}
@@ -205,9 +205,9 @@ function parse_template(meta, styles, line, templates, mods)
 			end
 			inserted = true
 			template.isline = true
-            template.perword = m == "lword"
-            template.persyl = m == "lsyl"
-            template.perchar = m == "lchar"
+			template.perword = m == "lword"
+			template.persyl = m == "lsyl"
+			template.perchar = m == "lchar"
 			-- apply text to correct string
 			if m ~= "line" then
 				template.t = template.t .. line.text
@@ -217,13 +217,13 @@ function parse_template(meta, styles, line, templates, mods)
 		elseif m == "word" and not template.isline then
 			table.insert(templates.word, template)
 			inserted = true
-        elseif m == "syl" and not template.isline then
+		elseif m == "syl" and not template.isline then
 			table.insert(templates.syl, template)
 			inserted = true
 		elseif m == "furi" and not template.isline then
 			table.insert(templates.furi, template)
 			inserted = true
-        elseif m == "char" and not template.isline then
+		elseif m == "char" and not template.isline then
 			table.insert(templates.char, template)
 			inserted = true
 		elseif (m == "line" or m == "lword" or m == "lsyl" or m == "lchar") and inserted then
@@ -267,7 +267,7 @@ function parse_template(meta, styles, line, templates, mods)
 				aegisub.debug.out(3, "No fxgroup name following fxgroup modifier\nIn template linee: %s\nEffect field: %s\n\n", line.text, line.effect)
 				template.fxgroup = nil
 			end
-        elseif m == "style" then
+		elseif m == "style" then
 			local style, t = string.headtail(rest)
 			if style ~= "" then
 				template.stylegroup = style
@@ -300,7 +300,7 @@ function matching_templates(templates, line, tenv)
 		elseif (t.style == line.style or not t.style) and
 				(not t.fxgroup or
 				(t.fxgroup and tenv.fxgroup[t.fxgroup] ~= false)) and
-                (not t.stylegroup or
+				(not t.stylegroup or
 				(line.style:match(t.stylegroup) ~= false))then
 			return t
 		else
@@ -477,7 +477,7 @@ function apply_templates(meta, styles, subs, templates)
 			l.i = i
 			l.comment = false
 			karaskel.preproc_line(subs, meta, styles, l)
-            additional_proc_line(l)
+			additional_proc_line(l)
 			if apply_line(meta, styles, subs, l, templates, tenv) then
 				-- Some templates were applied to this line, make a karaoke timing line of it
 				l.comment = true
@@ -544,160 +544,160 @@ end
 
 -- splitting into word and char tables
 function additional_proc_line(line)
-    local words = {n = 0}
-    local chars = {n = 0}
-    
-    local tags = {n=0}
-    local ded = 0
-    for ci,tag in line.text:gmatch("()(%b{})") do
-        tags.n = tags.n+1
-        tags[tags.n] = {text = tag, ci = ci - ded}
-        ded = ded + unicode.len(tag)
-    end
-    
-    local ci = 1
-    for i=1,#line.kara do
-        line.kara[i].ci = ci
-        ci = ci + unicode.len(line.kara[i].text_stripped)
-        line.kara[i].chars = {n=0}
-    end
-    
-    local word
-    local lf = 0
-    local lastci = 0
-    local lastpost = ""
-    for pre, ci, wordtxt, post in line.text_stripped:gmatch("(%s*)()(%S+)(%s*)") do
-        w = aegisub.text_extents(line.styleref, pre .. wordtxt .. post)
-        local tagstr = ""
-        for i,tag in ipairs(tags) do
-            if tag.ci > lastci and tag.ci <= ci then
-                tagstr = tagstr .. tag.text:gsub("\\[Kk][of]?%d+",""):gsub("{}","")
-            end
-        end
-        word = {
-            i = words.n + 1,
-            ci = ci,
-            start_time = line.start_time,
-            end_time = line.end_time,
-            duration = line.duration,
-            tags = tagstr,
-            text = tagstr .. pre .. wordtxt .. post,
-            text_stripped = pre .. wordtxt .. post,
-            text_spacestripped = wordtxt,
-            prespace = pre,
-            postspace = post,
-            width = w,
-            left = lf,
-            center = lf + w/2,
-            right = lf + w,
-            prespacewidth = aegisub.text_extents(line.styleref, pre),
-            postspacewidth = aegisub.text_extents(line.styleref, post),
-            chars = {n=0},
-            kara = {n=0},
-            style = line.styleref
-        }
-        
-        for i=1,#line.kara do
-            if line.kara[i].ci >= ci-unicode.len(pre)-unicode.len(lastpost) and line.kara[i].ci < ci+unicode.len(wordtxt) then
-                line.kara[i].word = word
-                line.kara[i].wi = words.n + 1
-                word.kara.n = word.kara.n + 1
-                word.kara[word.kara.n] = line.kara[i]
-            end
-        end
-        
-        if word.kara.n > 0 then
-            word.highlights = {n=0}
-            local hltime = 0
-            for i=1,word.kara.n do
-                for h=1,#word.kara[i].highlights do
-                    word.highlights.n = word.highlights.n + 1
-                    local highlight = word.kara[i].highlights[h]
-                    highlight.start_time = highlight.start_time + hltime
-                    highlight.end_time = highlight.end_time + hltime
-                    word.highlights[word.highlights.n] = highlight
-                end
-                hltime = hltime + word.kara[i].duration
-            end
-            word.start_time = word.kara[1].start_time
-            word.end_time = word.kara[word.kara.n].end_time
-            word.duration = word.end_time-word.start_time
-            word.si = word.kara[1].i
-        end
-        
+	local words = {n = 0}
+	local chars = {n = 0}
+	
+	local tags = {n=0}
+	local ded = 0
+	for ci,tag in line.text:gmatch("()(%b{})") do
+		tags.n = tags.n+1
+		tags[tags.n] = {text = tag, ci = ci - ded}
+		ded = ded + unicode.len(tag)
+	end
+	
+	local ci = 1
+	for i=1,#line.kara do
+		line.kara[i].ci = ci
+		ci = ci + unicode.len(line.kara[i].text_stripped)
+		line.kara[i].chars = {n=0}
+	end
+	
+	local word
+	local lf = 0
+	local lastci = 0
+	local lastpost = ""
+	for pre, ci, wordtxt, post in line.text_stripped:gmatch("(%s*)()(%S+)(%s*)") do
+		w = aegisub.text_extents(line.styleref, pre .. wordtxt .. post)
+		local tagstr = ""
+		for i,tag in ipairs(tags) do
+			if tag.ci > lastci and tag.ci <= ci then
+				tagstr = tagstr .. tag.text:gsub("\\[Kk][of]?%d+",""):gsub("{}","")
+			end
+		end
+		word = {
+			i = words.n + 1,
+			ci = ci,
+			start_time = line.start_time,
+			end_time = line.end_time,
+			duration = line.duration,
+			tags = tagstr,
+			text = tagstr .. pre .. wordtxt .. post,
+			text_stripped = pre .. wordtxt .. post,
+			text_spacestripped = wordtxt,
+			prespace = pre,
+			postspace = post,
+			width = w,
+			left = lf,
+			center = lf + w/2,
+			right = lf + w,
+			prespacewidth = aegisub.text_extents(line.styleref, pre),
+			postspacewidth = aegisub.text_extents(line.styleref, post),
+			chars = {n=0},
+			kara = {n=0},
+			style = line.styleref
+		}
+		
+		for i=1,#line.kara do
+			if line.kara[i].ci >= ci-unicode.len(pre)-unicode.len(lastpost) and line.kara[i].ci < ci+unicode.len(wordtxt) then
+				line.kara[i].word = word
+				line.kara[i].wi = words.n + 1
+				word.kara.n = word.kara.n + 1
+				word.kara[word.kara.n] = line.kara[i]
+			end
+		end
+		
+		if word.kara.n > 0 then
+			word.highlights = {n=0}
+			local hltime = 0
+			for i=1,word.kara.n do
+				for h=1,#word.kara[i].highlights do
+					word.highlights.n = word.highlights.n + 1
+					local highlight = word.kara[i].highlights[h]
+					highlight.start_time = highlight.start_time + hltime
+					highlight.end_time = highlight.end_time + hltime
+					word.highlights[word.highlights.n] = highlight
+				end
+				hltime = hltime + word.kara[i].duration
+			end
+			word.start_time = word.kara[1].start_time
+			word.end_time = word.kara[word.kara.n].end_time
+			word.duration = word.end_time-word.start_time
+			word.si = word.kara[1].i
+		end
+		
 		lf = lf + w
-        lastci = ci
-        lastpost = post
-        
-        words.n = words.n+1
-        words[words.n] = word
-    end
-    
-    line.words = words
-    
-    
-    
-    local char
-    local lf = 0
-    local ci = 0
-    for c in unicode.chars(line.text_stripped) do
-        ci = ci + 1
-        w = aegisub.text_extents(line.styleref, c)
-        local tagstr = ""
-        for i,tag in ipairs(tags) do
-            if tag.ci == ci then
-                tagstr = tagstr .. tag.text:gsub("\\[Kk][of]?%d+",""):gsub("{}","")
-            end
-        end
-        char = {
-            i = ci,
-            start_time = line.start_time,
-            end_time = line.end_time,
-            duration = line.duration,
-            tags = tagstr,
-            text = tagstr .. c,
-            text_stripped = c,
-            text_spacestripped = c,
-            prespace = "",
-            postspace = "",
-            width = w,
-            left = lf,
-            center = lf + w/2,
-            right = lf + w,
-            prespacewidth = 0,
-            postspacewidth = 0,
-            style = line.styleref
-        }
-        for i=1,words.n do
-            if words[i].ci > ci then
-                char.word = words[i-1]
-                char.wi = i-1
-                words[i-1].chars.n = words[i-1].chars.n + 1
-                words[i-1].chars[words[i-1].chars.n] = char
-                break
-            end
-        end
-        for i=1,#line.kara do
-            if line.kara[i].ci > ci then
-                char.syl = line.kara[i-1]
-                char.si = i-1
-                line.kara[i-1].chars.n = line.kara[i-1].chars.n + 1
-                line.kara[i-1].chars[line.kara[i-1].chars.n] = char
-                char.start_time = line.kara[i-1].start_time
-                char.end_time = line.kara[i-1].end_time
-                char.duration = line.kara[i-1].duration
-                char.highlights = line.kara[i-1].highlights
-                --char.style = line.kara[i-1].style
-                break
-            end
-        end
+		lastci = ci
+		lastpost = post
+		
+		words.n = words.n+1
+		words[words.n] = word
+	end
+	
+	line.words = words
+	
+	
+	
+	local char
+	local lf = 0
+	local ci = 0
+	for c in unicode.chars(line.text_stripped) do
+		ci = ci + 1
+		w = aegisub.text_extents(line.styleref, c)
+		local tagstr = ""
+		for i,tag in ipairs(tags) do
+			if tag.ci == ci then
+				tagstr = tagstr .. tag.text:gsub("\\[Kk][of]?%d+",""):gsub("{}","")
+			end
+		end
+		char = {
+			i = ci,
+			start_time = line.start_time,
+			end_time = line.end_time,
+			duration = line.duration,
+			tags = tagstr,
+			text = tagstr .. c,
+			text_stripped = c,
+			text_spacestripped = c,
+			prespace = "",
+			postspace = "",
+			width = w,
+			left = lf,
+			center = lf + w/2,
+			right = lf + w,
+			prespacewidth = 0,
+			postspacewidth = 0,
+			style = line.styleref
+		}
+		for i=1,words.n do
+			if words[i].ci > ci then
+				char.word = words[i-1]
+				char.wi = i-1
+				words[i-1].chars.n = words[i-1].chars.n + 1
+				words[i-1].chars[words[i-1].chars.n] = char
+				break
+			end
+		end
+		for i=1,#line.kara do
+			if line.kara[i].ci > ci then
+				char.syl = line.kara[i-1]
+				char.si = i-1
+				line.kara[i-1].chars.n = line.kara[i-1].chars.n + 1
+				line.kara[i-1].chars[line.kara[i-1].chars.n] = char
+				char.start_time = line.kara[i-1].start_time
+				char.end_time = line.kara[i-1].end_time
+				char.duration = line.kara[i-1].duration
+				char.highlights = line.kara[i-1].highlights
+				--char.style = line.kara[i-1].style
+				break
+			end
+		end
 		lf = lf + w
-        
-        chars.n = chars.n+1
-        chars[chars.n] = char
-    end
-    
-    line.chars = chars
+		
+		chars.n = chars.n+1
+		chars[chars.n] = char
+	end
+	
+	line.chars = chars
 end
 
 function apply_line(meta, styles, subs, line, templates, tenv)
@@ -782,51 +782,51 @@ function apply_line(meta, styles, subs, line, templates, tenv)
 				end
 				if t.t ~= "" then
 					if t.perword then 
-                        for i = 1, line.words.n do
-                            local word = line.words[i]
-                            tenv.syl = word
-                            tenv.basesyl = word
-                            set_ctx_syl(varctx, line, word)
-                            newline.text = newline.text .. run_text_template(t.t, tenv, varctx)
-                            if t.addtext then
-                                if t.keeptags then
-                                    newline.text = newline.text .. word.text
-                                else
-                                    newline.text = newline.text .. word.text_stripped
-                                end
-                            end
-                        end
-                    elseif t.persyl then
-                        for i = 1, line.kara.n do
-                            local syl = line.kara[i]
-                            tenv.syl = syl
-                            tenv.basesyl = syl
-                            set_ctx_syl(varctx, line, syl)
-                            newline.text = newline.text .. run_text_template(t.t, tenv, varctx)
-                            if t.addtext then
-                                if t.keeptags then
-                                    newline.text = newline.text .. syl.text
-                                else
-                                    newline.text = newline.text .. syl.text_stripped
-                                end
-                            end
-                        end
-                    elseif t.perchar then
-                        for i = 1, line.chars.n do
-                            local char = line.chars[i]
-                            tenv.syl = char
-                            tenv.basesyl = char
-                            set_ctx_syl(varctx, line, char)
-                            newline.text = newline.text .. run_text_template(t.t, tenv, varctx)
-                            if t.addtext then
-                                if t.keeptags then
-                                    newline.text = newline.text .. char.text
-                                else
-                                    newline.text = newline.text .. char.text_stripped
-                                end
-                            end
-                        end
-                    end
+						for i = 1, line.words.n do
+							local word = line.words[i]
+							tenv.syl = word
+							tenv.basesyl = word
+							set_ctx_syl(varctx, line, word)
+							newline.text = newline.text .. run_text_template(t.t, tenv, varctx)
+							if t.addtext then
+								if t.keeptags then
+									newline.text = newline.text .. word.text
+								else
+									newline.text = newline.text .. word.text_stripped
+								end
+							end
+						end
+					elseif t.persyl then
+						for i = 1, line.kara.n do
+							local syl = line.kara[i]
+							tenv.syl = syl
+							tenv.basesyl = syl
+							set_ctx_syl(varctx, line, syl)
+							newline.text = newline.text .. run_text_template(t.t, tenv, varctx)
+							if t.addtext then
+								if t.keeptags then
+									newline.text = newline.text .. syl.text
+								else
+									newline.text = newline.text .. syl.text_stripped
+								end
+							end
+						end
+					elseif t.perchar then
+						for i = 1, line.chars.n do
+							local char = line.chars[i]
+							tenv.syl = char
+							tenv.basesyl = char
+							set_ctx_syl(varctx, line, char)
+							newline.text = newline.text .. run_text_template(t.t, tenv, varctx)
+							if t.addtext then
+								if t.keeptags then
+									newline.text = newline.text .. char.text
+								else
+									newline.text = newline.text .. char.text_stripped
+								end
+							end
+						end
+					end
 				else
 					-- hmm, no main template for the line... put original text in
 					if t.addtext then
@@ -844,7 +844,7 @@ function apply_line(meta, styles, subs, line, templates, tenv)
 	end
 	aegisub.debug.out(5, "Done running line templates\n\n")
 	
-    -- Loop over words
+	-- Loop over words
 	for i = 1, line.words.n do
 		if aegisub.progress.is_cancelled() then break end
 		local word = line.words[i]
@@ -854,7 +854,7 @@ function apply_line(meta, styles, subs, line, templates, tenv)
 			applied_templates = true
 		end
 	end
-    
+	
 	-- Loop over syllables
 	for i = 1, line.kara.n do
 		if aegisub.progress.is_cancelled() then break end
@@ -866,7 +866,7 @@ function apply_line(meta, styles, subs, line, templates, tenv)
 		end
 	end
 	
-    -- Loop over characters
+	-- Loop over characters
 	for i = 1, line.chars.n do
 		if aegisub.progress.is_cancelled() then break end
 		local char = line.chars[i]
@@ -876,7 +876,7 @@ function apply_line(meta, styles, subs, line, templates, tenv)
 			applied_templates = true
 		end
 	end
-    
+	
 	-- Loop over furigana
 	for i = 1, line.furi.n do
 		if aegisub.progress.is_cancelled() then break end
@@ -1043,9 +1043,9 @@ function apply_one_syllable_template(syl, line, template, tenv, varctx, subs, sk
 			newline.effect = "fx"
 			aegisub.debug.out(5, "Generated line with text: %s\n", newline.text)
 			if j <= tenv.maxj then 
-                subs.append(newline) 
-                applied = applied + 1
-            end
+				subs.append(newline) 
+				applied = applied + 1
+			end
 		end
 	end
 	
