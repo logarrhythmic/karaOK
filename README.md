@@ -1,5 +1,5 @@
 # liberacion
-Aegisub KFX library to liberate you from messy code written across dozens of template and code lines without proper linebreaks, and to provide utilities
+Aegisub KFX library to let you work with less messy code written across dozens of template and code lines without proper linebreaks, and to provide utilities
 
 # Usage
 Intended usage is loading into the karatemplater with a line like
@@ -12,17 +12,36 @@ The variable ```ln``` will now be a table that contains the following functions:
 
     ln.init(tenv_in)
 
-Takes the ```tenv``` variable from the karaoke templater, to allow the library to directly read the current line and syllable and other such things.
+Takes the ```tenv``` variable from the karaoke templater, to allow the library to directly read the current line and syllable and other such things. Also sets shorthands for a few functions. For example, instead of using ```!ln.syltime(0.3)!``` you can use ```!st(0.3)!```.
+
+
+    shorthand only: set(var, val)
+    
+Sets variable ```var``` in the templater environment to value ```val```.
+
+
+    ln.randomize(variable_name, min, max, override)
+    shorthand: rset(variable_name, min, max, override)
+    
+If a variable by ```variable_name``` doesn't already exist in the environment, or if ```override``` is true, sets variable ```variable_name``` to ```math.random(min, max)```.
 
 
     ln.chari()
+    shorthand: ci()
 
 Returns the current character index, works on char templates too.
 
 
     ln.syltime(p)
+    shorthand: st(p)
 
 Returns ```syl.start_time + syl.duration*p```, or ```syl.start_time``` if ```p``` is not provided.
+
+
+    ln.syldur(p)
+    shorthand: sd(p)
+
+Returns ```syl.duration*p```, or ```syl.duration``` if ```p``` is not provided.
 
 ## line table - info about the line and tags within it
 
@@ -37,11 +56,13 @@ Same as above, but returns all matches for each tag. Useful for transforms.
 
 
     ln.line.c(n)
+    shorthand: gc(n)
  
 Returns a string containing either the color from the matching color tag in the line, or if that's not possible, the style's default color. ```n``` can be 1, 2, 3 or 4. Calling the function without an argument returns color 1.
 
 
     ln.line.a(n)
+    shorthand: ga(n)
  
 Same as ```c(n)```, but for alpha.
 
@@ -166,18 +187,21 @@ Try out lower ```framestep``` values on the second template line and see what ha
 ## color table - fancy fairy magic
 
     ln.color.byRGB(r,g,b)
+    shorthand: rgb(r,g,b)
 
 Creates an ASS color value string for override tags. r, g and b are red, green and blue values between 0 and 255.
 
 
     ln.color.byHSL(h,s,l)
+    shorthand: hsl(h,s,l)
 
 Creates an ASS color value string for override tags. h, s and l are hue, saturation and lightness values between 0 and 255. The values are in this range to be consistent with Aegisub's color picker.
 
 
-    ln.color.lumaHSL(h,s,l)
+    ln.color.lumaHSL(h,s,y)
+    shorthand: hsy(h,s,y)
 
-Creates an ASS color value string for override tags. h, s and l are hue, saturation and luma values between 0 and 255. The values are in this range to be consistent with Aegisub's color picker.
+Creates an ASS color value string for override tags. h, s and y are hue, saturation and luma values between 0 and 255. The values are in this range to be consistent with Aegisub's color picker.
 
 This differs from the normal HSL function by preserving perceived brightness of the color between different hues. The human eye sees green as much brighter than blue, for example. TV.709 values are used.
 
@@ -192,6 +216,7 @@ These return either the three RGB or HSL values, and the add functions add the v
 ## math table
 
 	ln.math.clamp(value, min, max)
+	shorthand: clamp(value, min, max)
 
 Returns min if value is below min, max if value is over max, or value otherwise. Useful for keeping a value within bounds.
 
@@ -199,3 +224,37 @@ Returns min if value is below min, max if value is over max, or value otherwise.
 	ln.math.modloop(value, min, max)
 
 Returns a value that has been moved to the specified range by substracting or adding the range's width to it enough times - for example 5.6,0,1 would return 5.6-5x1=0.6, and 7,40,52 would return 7+3x12=43. As a more practical example, modloop(789,-180,180) will get you 69 which can be used to keep angles in a nice range.
+
+
+	ln.math.modbounce(value, min, max)
+
+Works like modloop, but every second pass over the range is mirrored so that if value is allowed to rise indefinitely, the curve for that would trace a triangle wave pattern. I used this for limiting hues in gradients.
+
+
+	ln.math.log(base, n)
+
+Calculates ```base```-based logarithm for ```n```.
+
+
+	ln.math.sgn(n)
+
+Returns -1 for negative numbers ```n``` and 1 otherwise.
+
+
+	Additional shorthands:
+	rnd(...) for math.random(...)
+	fl(n) for math.floor(n)
+
+# Modified karatemplater
+
+	--[[
+	 List of unauthorized unofficial modifications by logarithm:
+	  - gave the execution environment access to the subtitles object
+	  - made notext and noblank modifiers work with pre-line templates and non-k-timed lines like they do with other template types(maybe some other stuff too)
+	  - added variable ci, available with by-char templates, which tells which letter of the current syllable is being processed
+	  - increased inline variable positioning precision to .1 pixel
+	  - added option to generate kfx without generating furigana styles
+	  - calling maxloop() with something below the current j will abort outputting the current template line
+	  - redid line, preline, syl and other such keywords: pre-line is now just line, old line is now lsyl, and lword/lchar are like lsyl for words and chars. char and word also work with code lines
+	  - added 'style' modifier which works kind of like fxgroup: for example templates with 'style romaji' are run on only lines with "romaji" in the style name. Intended for use with the 'all' keyword
+	 ]]
