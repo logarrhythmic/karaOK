@@ -1,5 +1,8 @@
-# liberacion
-Aegisub KFX library to let you work with less messy code written across dozens of template and code lines without proper linebreaks, and to provide utilities
+# karaOK
+Normal Aegisub kara templater usage: messy code written across dozens of template and code lines without linebreaks
+Usage with karaOK: same horribly messy code but it does more with less of it, "5/5 amazing" -IGN
+
+Basically, you probably want to use this only as an example of how to start making your own external libraries for use with the Aegisub karaoke templater, but do whatever you feel like. There's some useful stuff here if you can make any sense of my garbage code
 
 # Usage
 Intended usage is loading into the karatemplater with a line like
