@@ -127,7 +127,7 @@ tag_mod works like this:
 Arguably the most advanced part of the library so far. Useful for shaking text, "floating" text and who knows what else. Can make pretty convincing sine waves without going completely frame-by-frame.
 
 
-	waveX = ln.wave.new() -> TABLE
+	waveX = ln.wave.new()
 
 Creates a new table to store the wave function you're creating.
 
