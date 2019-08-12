@@ -1,7 +1,7 @@
 # karaOK
 Normal Aegisub kara templater usage: messy code written across dozens of template and code lines without linebreaks
 
-Usage with karaOK: same horribly messy code but it does more with less of it, "5/5 amazing" -IGN
+Usage with karaOK: same horribly messy templates but at least there's less of it
 
 Basically, you probably want to use this only as an example of how to start making your own external libraries for use with the Aegisub karaoke templater, but do whatever you feel like. There's some useful stuff here if you can make any sense of my garbage code
 
@@ -13,6 +13,8 @@ Intended usage is loading into the karatemplater with a line like
 The variable ```ln``` will now be a table that contains the following functions:
 
 # Functions
+
+Note: this is definitely incomplete and parts might be incorrect. As soon as at least one person tells me to fix it, I will.
 
     ln.init(tenv_in)
 
