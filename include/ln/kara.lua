@@ -864,8 +864,8 @@ lnlib = {
       return n<0 and -1 or 1
     end,
     round = function(num, idp)
-      local mult = 10^(idp or 0)
-      return math.floor(num * mult + 0.5) / mult
+      local bracket = 1 / 10^(idp or 0)
+      return math.floor(num/bracket + lnlib.math.sgn(v) * 0.5) * bracket
     end,
     random = function(...)
       local ret
@@ -876,7 +876,7 @@ lnlib = {
       else
         ret = select(1,...) + (select(2,...)-select(1,...))*math.random() -- [a-b] float instead of [a-b] int
       end
-      return lnlib.math.round(ret, 2)
+      return lnlib.math.round(ret, 4)
     end,
     lerp = function(time, val1, val2)
       if type(val1) == "string" and type(val2) == "string" then
