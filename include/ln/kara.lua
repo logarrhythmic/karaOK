@@ -155,7 +155,7 @@ RGB2HSL = function(r,g,b)
   if c ~= 0 then
     if ma == r then
       h = (((g - b) / c) % 6) / 6;
-    elseif ma == G then
+    elseif ma == g then
       h = ((b - r) / c + 2) / 6;
     else
       h = ((r - g) / c + 4) / 6;
