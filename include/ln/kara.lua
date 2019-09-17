@@ -14,20 +14,18 @@ function booltost(bool)
   end
 end
 
-function tabletost(t)
-  local tabst = "{ ";
-  local i = 0;
-  for key,val in pairs(t) do
-    i = i+1
-    if key ~= i then
-      tabst = tabst .. key ..":"
-    end
-    tabst = tabst .. makestring(val);
-
-    tabst = tabst .. ", "
-
+function tabletost(t, depth)
+  local tabst = ""
+  depth = depth or 0
+  for key, val in pairs(t) do
+      for i=1,depth do
+          tabst = tabst .. "  "
+      end
+      tabst = tabst .. (key .. ": " .. tostring(val) .. "\n")
+      if type(val) == "table" then
+          tabst = tabst .. tabletost(val, depth + 1)
+      end
   end
-  tabst = tabst .. " }";
   return tabst;
 end
 
@@ -112,34 +110,33 @@ function an2point(alignment)
 end
 
 local lnlib
-local buffers -- set in init(tenv)
 
-function startbuffertime(min)
+function startbuffertime(k_min, fad_min)
   if lnlib.line.tag("fad") ~= "" then
-    return tonumber(string.match(lnlib.line.tag("fad"), "%d+"));
+    return math.max(fad_min, tonumber(string.match(lnlib.line.tag("fad"), "(%d+),%d+")));
   else
     if #(tenv.line.kara or {}) == 0 then
-      return min;
+      return k_min;
     end
     if tenv.line.kara[1].text == "" or tenv.line.kara[1].text == " " then
-      return math.max(min, tenv.line.kara[1].duration);
+      return math.max(k_min, tenv.line.kara[1].duration);
     end
   end
-  return min;
+  return k_min;
 end
 
-function endbuffertime(min)
+function endbuffertime(k_min, fad_min)
   if lnlib.line.tag("fad") ~= "" then
-    return tonumber(string.sub(string.match(lnlib.line.tag("fad"), "%,%d+"), 2));
+    return math.max(fad_min, tonumber(string.match(lnlib.line.tag("fad"), "%d+,(%d+)")));
   else
     if #(tenv.line.kara or {}) == 0 then
-      return min;
+      return k_min;
     end
     if tenv.line.kara[#(tenv.line.kara)].text == "" or tenv.line.kara[#(tenv.line.kara)].text == " " then
-      return math.max(min, tenv.line.kara[#(tenv.line.kara)].duration);
+      return math.max(k_min, tenv.line.kara[#(tenv.line.kara)].duration);
     end
   end
-  return min
+  return k_min
 end
 
 RGB2HSL = function(r,g,b)
@@ -273,7 +270,14 @@ function shiftDrawing(str, x, y)
   return txt
 end
 
+function cleartable(table)
+  for i in pairs(table) do
+    table[i] = nil
+  end
+end
+
 local randomizer_table = {}
+local buffers = {}
 
 lnlib = {
   init = function(tv)
@@ -291,8 +295,8 @@ lnlib = {
     tv.rset = lnlib.randomize
     tv.clamp = lnlib.math.clamp
     tv.fl = math.floor
-    randomizer_table = {}
-    buffers = {}
+    cleartable(randomizer_table)
+    cleartable(buffers)
   end,
   --[[ chari = function() -- not relevant and also broken with kara templater mod, use syl.ci for all your needs
     local out = 0
@@ -367,12 +371,14 @@ lnlib = {
         return alpha_from_style(tenv.line.styleref["color" .. n]);
       end
     end,
-    buffers = function(startmin, endmin)
+    buffers = function(startmin_k, endmin_k, startmin_fad, endmin_fad)
       local buf = buffers[tenv.line.start_time .."-".. tenv.line.end_time]
       if buf == nil then
+        startmin_fad = startmin_fad or startmin_k
+        endmin_fad = endmin_fad or endmin_k
         buf = {}
-        buf.sb = startbuffertime(startmin)
-        buf.eb = endbuffertime(endmin)
+        buf.sb = startbuffertime(startmin_k, startmin_fad)
+        buf.eb = endbuffertime(endmin_k, endmin_fad)
         buffers[tenv.line.start_time .."-".. tenv.line.end_time] = buf
       end
       return buf.sb,buf.eb
@@ -695,11 +701,11 @@ lnlib = {
         end,
 
         clear = function()
-          ftable = {}
+          cleartable(ftable)
         end,
 
         setWave = function(waveform, wavelength, amplitude, phase)
-          ftable = {}
+          cleartable(ftable)
           if waveform == "noise" or waveform == "random" then
             local randomvalues = {}
             math.randomseed(phase)
@@ -714,7 +720,7 @@ lnlib = {
         end,
 
         setFunction = function(func)
-          ftable = {}
+          cleartable(ftable)
           table.insert(ftable, {form="function", f = func})
           return ""
         end,
@@ -838,7 +844,9 @@ lnlib = {
       end,
       add = function(string, dh, ds, dl)
         local r, g, b = extract_color(string)
+        aegisub.log(("RGB: (%02X, %02X, %02X) "):format(r, g, b))
         local h, s, l = RGB2HSL(r,g,b)
+        aegisub.log(("HSL: (%d, %d, %d) "):format(h, s, l))
         return lnlib.math.modloop(h+dh,0,255),lnlib.math.clamp(s+ds,0,255),lnlib.math.clamp(l+dl,0,255)
       end
     }
