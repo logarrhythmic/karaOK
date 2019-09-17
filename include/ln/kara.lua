@@ -113,30 +113,30 @@ local lnlib
 
 function startbuffertime(k_min, fad_min)
   if lnlib.line.tag("fad") ~= "" then
-    return math.max(fad_min, tonumber(string.match(lnlib.line.tag("fad"), "(%d+),%d+")));
+    return math.max(fad_min, tonumber(string.match(lnlib.line.tag("fad"), "(%d+),%d+"))), true
   else
     if #(tenv.line.kara or {}) == 0 then
-      return k_min;
+      return k_min, false
     end
     if tenv.line.kara[1].text == "" or tenv.line.kara[1].text == " " then
-      return math.max(k_min, tenv.line.kara[1].duration);
+      return math.max(k_min, tenv.line.kara[1].duration), false
     end
   end
-  return k_min;
+  return k_min, false;
 end
 
 function endbuffertime(k_min, fad_min)
   if lnlib.line.tag("fad") ~= "" then
-    return math.max(fad_min, tonumber(string.match(lnlib.line.tag("fad"), "%d+,(%d+)")));
+    return math.max(fad_min, tonumber(string.match(lnlib.line.tag("fad"), "%d+,(%d+)"))), true
   else
     if #(tenv.line.kara or {}) == 0 then
-      return k_min;
+      return k_min, false
     end
     if tenv.line.kara[#(tenv.line.kara)].text == "" or tenv.line.kara[#(tenv.line.kara)].text == " " then
-      return math.max(k_min, tenv.line.kara[#(tenv.line.kara)].duration);
+      return math.max(k_min, tenv.line.kara[#(tenv.line.kara)].duration), false
     end
   end
-  return k_min
+  return k_min, false
 end
 
 RGB2HSL = function(r,g,b)
@@ -376,9 +376,12 @@ lnlib = {
       if buf == nil then
         startmin_fad = startmin_fad or startmin_k
         endmin_fad = endmin_fad or endmin_k
+        local fromtag = false
         buf = {}
-        buf.sb = startbuffertime(startmin_k, startmin_fad)
-        buf.eb = endbuffertime(endmin_k, endmin_fad)
+        buf.sb, fromtag = startbuffertime(0, 0)
+        buf.sb = math.max(buf.sb, fromtag and startmin_fad or startmin_k)
+        buf.eb, fromtag = endbuffertime(0, 0)
+        buf.eb = math.max(buf.eb, fromtag and endmin_fad or endmin_k)
         buffers[tenv.line.start_time .."-".. tenv.line.end_time] = buf
       end
       return buf.sb,buf.eb
