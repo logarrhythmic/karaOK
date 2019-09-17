@@ -844,9 +844,7 @@ lnlib = {
       end,
       add = function(string, dh, ds, dl)
         local r, g, b = extract_color(string)
-        aegisub.log(("RGB: (%02X, %02X, %02X) "):format(r, g, b))
         local h, s, l = RGB2HSL(r,g,b)
-        aegisub.log(("HSL: (%d, %d, %d) "):format(h, s, l))
         return lnlib.math.modloop(h+dh,0,255),lnlib.math.clamp(s+ds,0,255),lnlib.math.clamp(l+dl,0,255)
       end
     }
