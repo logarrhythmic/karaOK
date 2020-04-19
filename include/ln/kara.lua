@@ -450,11 +450,12 @@ lnlib = {
   tag = {
     pos = function(alignment, anchorpoint, xoffset, yoffset, line_kara_mode)
       if type(alignment) == "table" then
-        alignment = alignment.alignment or tenv.line.styleref.align or 5
-        anchorpoint = alignment.anchorpoint or alignment or tenv.line.styleref.align or 5
-        xoffset = alignment.offset_x or 0
-        yoffset = alignment.offset_y or 0
-        line_kara_mode = alignment.line-kara_mode
+        local tab = alignment
+        alignment = tab.alignment or tenv.line.styleref.align or 5
+        anchorpoint = tab.anchorpoint or alignment or tenv.line.styleref.align or 5
+        xoffset = tab.xoffset or tab.offset_x or 0
+        yoffset = tab.yoffset or tab.offset_y or 0
+        line_kara_mode = tab.line_kara_mode
       else
         alignment = alignment or tenv.line.styleref.align or 5
         anchorpoint = anchorpoint or alignment or tenv.line.styleref.align or 5
@@ -538,19 +539,23 @@ lnlib = {
     end,
     move = function(xoff0, yoff0, xoff1, yoff1, time0, time1, alignment, anchorpoint, line_kara_mode)
       if type(xoff0) == "table" then
+        -- parse args table, set defaults if necessary
         local tab = xoff0
         alignment = tab.alignment or tenv.line.styleref.align or 5
         anchorpoint = tab.anchorpoint or alignment or tenv.line.styleref.align or 5
-        xoff0 = tab.offset_x_start or tab.x0 or 0
-        yoff0 = tab.offset_x_start or tab.y0 or 0
-        xoff1 = tab.offset_x_end or tab.x1 or 0
-        yoff1 = tab.offset_x_end or tab.y1 or 0
-        time0 = tab.time_start or tab.t0 or nil
-        time1 = tab.time_end or tab.t1 or nil
+        xoff0 = tab.xoff0 or tab.offset_x_start or tab.x0 or 0
+        yoff0 = tab.yoff0 or tab.offset_y_start or tab.y0 or 0
+        xoff1 = tab.xoff1 or tab.offset_x_end or tab.x1 or 0
+        yoff1 = tab.yoff1 or tab.offset_y_end or tab.y1 or 0
+        time0 = tab.time0 or tab.time_start or tab.t0 or nil
+        time1 = tab.time1 or tab.time_end or tab.t1 or nil
         line_kara_mode = tab.line_kara_mode
       else
+        -- set defaults for nil values
         alignment = alignment or tenv.line.styleref.align or 5
         anchorpoint = anchorpoint or tenv.line.styleref.align or 5
+        xoff0 = xoff0 or 0
+        yoff0 = yoff0 or 0
         xoff1 = xoff1 or 0
         yoff1 = yoff1 or 0
       end
@@ -567,14 +572,14 @@ lnlib = {
       end
       local timest;
       if time0 == nil or time1 == nil then
-        timest = ""
+        timest = ""                              -- no time values, move over entire line duration
       else
-        timest = (",%d,%d"):format(time0,time1)
+        timest = (",%d,%d"):format(time0,time1)  -- set time values as given
       end
       if x ~= nil and y~= nil then
-        return ("\\an%d\\move(%.2f,%.2f,%.2f,%.2f%s)"):format(alignment,x + xoff0,y + yoff0,x + xoff1,y + yoff1,timest);
+        return ("\\an%d\\move(%.2f,%.2f,%.2f,%.2f%s)"):format(alignment,x + xoff0,y + yoff0,x + xoff1,y + yoff1,timest)
       else
-        return "";
+        return ""
       end
     end,
     t = function(a0, a1, a2, a3)
