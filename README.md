@@ -8,7 +8,7 @@ Basically, you probably want to use this only as an example of how to start maki
 # Usage
 Intended usage is loading into the karatemplater with a `code once` line like
 
-    ln = _G.require "ln.kara" ln.init(tenv)
+    ln = _G.require "ln.kara"; ln.init(tenv)
 
 The variable ```ln``` will now be a table that contains the following functions:
 
