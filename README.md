@@ -94,12 +94,13 @@ Same as the two above functions, but these just always give the style's default 
 ---
 
     ln.line.buffers(startmin_k, endmin_k, startmin_fad, endmin_fad) -> number, number
+    ln.line.buffers(startmin, endmin) -> number, number
  
 Returns durations for fade-in and fade-out effects. There are 2 ways this function can work.
 1. If there is a \fad tag present in the source line, this will return the values in that \fad tag. If these are smaller than `startmin_fad`/`endmin_fad`, `startmin_fad`/`endmin_fad` is returned instead.
 2. Otherwise, this will take the length of empty syllables at the start and end of the line. If these are smaller than `startmin_k`/`endmin_k`, `startmin_k`/`endmin_k` is returned instead.
 
-If `startmin_fad` and `endmin_fad` are not provided, the `*min_k` values will be used for those as well.
+If only 2 parameters are provided, they will be used in both of the above cases.
 
 ---
 
