@@ -218,7 +218,7 @@ Creates a set of transforms according to a wave function.
 
 ```wave``` is a wave table created as shown above.
 
-```tags``` is a table of strings that are the aegisub override tags to animate, for example ```{"fscx", fscy}```. A single string will work too, it converts it to a list automatically and carries on. Color tags, font changes and other tags that take string values are generally not supported for obvious reasons, but alpha tags are. I might add color support at a later point in time, for animated rainbows and other silly stuff.
+```tags``` is a table of strings that are the aegisub override tags to animate, for example ```{"fscx", "fscy"}```. A single string will work too, it converts it to a list automatically and carries on. Color tags, font changes and other tags that take string values are generally not supported for obvious reasons, but alpha tags are. I might add color support at a later point in time, for animated rainbows and other silly stuff.
 
 ```starttime``` is the time to start animating (relative to line start, like with transform tags). Can be left empty/nil to default to line start.
 
