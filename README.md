@@ -192,9 +192,9 @@ Adds an elementary waveform or white noise to the wave function.
 
 ```wavelength``` is the length of one period in milliseconds. The white noise is periodic too. If you want more random noise, see the next function and use a math.random() there.
 
-```amplitude``` is the amplitude of the waveform. ```1```, for example, will get you a maximum value of ```1``` and a minimum value of ```-1```.
+```amplitude``` is the amplitude of the waveform. ```1```, for example, will get you a maximum value of ```1``` and a minimum value of ```-1```. Defaults to 1 if left out.
 
-```phase``` is the phase shift, in periods, applied to the waveform. Negative values will delay the waveform, positive values will do the opposite. For noise, this value instead seeds the random number generator.
+```phase``` is the phase shift, in periods, applied to the waveform. Negative values will delay the waveform, positive values will do the opposite. For noise, this value instead seeds the random number generator. Defaults to 0 if left out.
 
 ---
 
