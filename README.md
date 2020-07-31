@@ -113,6 +113,7 @@ Each returns the unicode character length of ```line.text_stripped```, ```line.t
 ## tag table - tag generation and handling
 
     ln.tag.pos(alignment, anchorpoint, xoffset, yoffset, line_kara_mode) -> string
+    ln.tag.pos(table) -> string
 
 Creates \an and \pos tags. 
 
