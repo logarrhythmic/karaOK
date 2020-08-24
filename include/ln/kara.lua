@@ -809,8 +809,11 @@ lnlib = {
 
       local timestep = framestep * 1000 / 23.976
       local tfs = {}
+      local prevtags = ""
       if jumpToStartingPosition then
-        table.insert( tfs, lnlib.tag.t(starttime, starttime + 1, 1, formtagsv2(tags, wave.getValue(starttime - delay))) )
+        local firsttags = formtagsv2(tags, wave.getValue(starttime - delay))
+        table.insert( tfs, lnlib.tag.t(starttime, starttime + 1, 1, firsttags) )
+        prevtags = firsttags
       end
       for i = starttime, endtime - 1, timestep do
         local t0 = i
@@ -826,7 +829,11 @@ lnlib = {
         local accel_unclamped = lnlib.math.log(0.5, math.abs((valHalf - val0) / (val1 - val0)))
         local accel = lnlib.math.clamp(accel_unclamped, 0.15, 8);
         
-        table.insert( tfs, lnlib.tag.t(t0, t1, accel, formtagsv2(tags, val1)) )
+        local _tags = formtagsv2(tags, val1)
+        if _tags ~= prevtags then
+          table.insert( tfs, lnlib.tag.t(t0, t1, accel, _tags) )
+          prevtags = _tags
+        end
       end
       return table.concat(tfs)
     end
