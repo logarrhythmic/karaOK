@@ -795,9 +795,9 @@ lnlib = {
       local identity = function(x) return x end
         
       for i,val in ipairs(tags) do
-        if type(val) ~= "table" do
+        if type(val) ~= "table" then
           val = {val, identity}
-        elseif val[2] == nil
+        elseif val[2] == nil then
           val[2] = identity
         end
       end
@@ -805,7 +805,7 @@ lnlib = {
       if modifierFunctions then
         aegisub.log(2, "Warning: this syntax is deprecated. Instead of a separate modifierFunctions table, please bundle the modifier functions with their tags in the tags table. For more information, see the readme.\n")
         for i,val in ipairs(tags) do
-          val[2] = modifierFunctions[((i-1) % #modifierFunctions+1]
+          val[2] = modifierFunctions[(i-1) % #modifierFunctions+1]
         end
       end
 
