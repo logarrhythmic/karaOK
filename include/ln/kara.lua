@@ -214,6 +214,7 @@ end
 function formtag(tag, argumentlist)
   if type(argumentlist) ~= "table" then argumentlist = { argumentlist } end;
   local argstring = argumentlist[1];
+  
   if #argumentlist == 1 then
     if type(argstring) == "number" then
       if tag == "alpha" or tag == "a" or tag == "1a" or tag == "2a" or tag == "3a" or tag == "4a" then
@@ -225,6 +226,7 @@ function formtag(tag, argumentlist)
       return ("\\%s%s"):format(tag,argstring);
     end
   end
+
   for i = 2, #argumentlist do
     if type(argumentlist[i]) == "number" then
       argumentlist[i] = ("%.2f"):format(argumentlist[i])
@@ -237,8 +239,8 @@ function formtags(taglist, argumentlist)
   if type(taglist) ~= "table" then taglist = { taglist } end
   if type(argumentlist) ~= "table" then argumentlist = { argumentlist } end
   local tagstrings = {}
-  for i=1, #taglist do
-    table.insert(tagstrings, formtag(taglist[i], argumentlist[((i-1)%#argumentlist)+1]))
+  for i = 1, #taglist do
+    table.insert(tagstrings, formtag(taglist[i], argumentlist[((i-1) % #(argumentlist))+1]))
   end
   return table.concat(tagstrings)
 end
@@ -250,6 +252,14 @@ function calcTable(functions, value)
     outt[i] = functions[i](value)
   end
   return outt
+end
+
+function formtagsv2(tags_with_funcs, value)
+  local tagstrings = {}
+  for i = 1, #taglist do
+    table.insert(tagstrings, formtag(taglist[i][1], taglist[i][2](value)))
+  end
+  return table.concat(tagstrings)
 end
 
 function shiftDrawing(str, x, y)
@@ -274,6 +284,14 @@ function cleartable(table)
   for i in pairs(table) do
     table[i] = nil
   end
+end
+
+function paircount(table)
+  local count = 0
+  for k,v in pairs(table) do
+    count = count + 1
+  end
+  return count
 end
 
 local randomizer_table = {}
@@ -325,8 +343,8 @@ lnlib = {
     tag = function (tags)
       local ret = {}
       if type(tags) == "string" then tags = {tags} end
-      for i=1,#tags do
-        table.insert(ret,tenv.line.raw:sub(findtag(tenv.line.raw, tags[i])))
+      for key,val in pairs(tags) do
+        table.insert(ret,tenv.line.raw:sub(findtag(tenv.line.raw, val)))
       end
       return table.concat(ret)
     end,
@@ -759,26 +777,62 @@ lnlib = {
       }
     end,
 
-    transform = function(wave, tags, starttime, endtime, delay, framestep, jumpToStartingPosition, modifierFunctions, dutyCycle)
+    transform = function(wave, tags, starttime, endtime, delay, framestep, jumpToStartingPosition, argY, argZ)
       framestep = framestep or 1
-      dutyCycle = dutyCycle or 0.2
       starttime = starttime or 0
       endtime = endtime or tenv.line.duration
-      if modifierFunctions == nil then
-        modifierFunctions = {function(x) return x end}
+      delay = delay or 0
+      
+      local modifierFunctions
+      local dutyCycle
+      if argY and type(argY) == "number" then
+        dutyCycle = argY
+      else
+        modifierFunctions = argY
+        dutyCycle = argZ
       end
-      if delay == nil then delay = 0 end
 
-      jumpToStartingPosition = jumpToStartingPosition or true
+      local identity = function(x) return x end
+        
+      for i,val in ipairs(tags) do
+        if type(val) ~= "table" do
+          val = {val, identity}
+        elseif val[2] == nil
+          val[2] = identity
+        end
+      end
+      -- transform old syntax into new syntax
+      if modifierFunctions then
+        aegisub.log(2, "Warning: this syntax is deprecated. Instead of a separate modifierFunctions table, please bundle the modifier functions with their tags in the tags table. For more information, see the readme.\n")
+        for i,val in ipairs(tags) do
+          val[2] = modifierFunctions[((i-1) % #modifierFunctions+1]
+        end
+      end
+
+      dutyCycle = dutyCycle or 0.2 -- todo: explain this in readme
+
+      jumpToStartingPosition = jumpToStartingPosition or true -- todo: fix readme regarding this
 
       local timestep = framestep * 1000 / 23.976
       local tfs = {}
       if jumpToStartingPosition then
-        table.insert( tfs, lnlib.tag.t(starttime, starttime + 1, 1, formtags(tags, calcTable(modifierFunctions, wave.getValue(starttime - delay)))) )
+        table.insert( tfs, lnlib.tag.t(starttime, starttime + 1, 1, formtagsv2(tags, wave.getValue(starttime - delay))) )
       end
       for i = starttime, endtime - 1, timestep do
-        local accel = lnlib.math.clamp(lnlib.math.log(0.5, math.abs((wave.getValue(i + timestep / 2 - delay) - wave.getValue(i - delay)) / (wave.getValue(i + timestep - delay) - wave.getValue(i - delay)))),0.15, 8);
-        table.insert( tfs, lnlib.tag.t(i, i + timestep*dutyCycle + 1, accel, formtags(tags, calcTable(modifierFunctions, wave.getValue(i + timestep - delay)))) )
+        local t0 = i
+        if jumpToStartingPosition and i == starttime then
+          t0 = i + 1
+        end
+        local t1 = t0 + timestep * dutyCycle + 1
+
+        local val0    = wave.getValue(i - delay)
+        local valHalf = wave.getValue(i + timestep / 2 - delay)
+        local val1    = wave.getValue(i + timestep - delay)
+
+        local accel_unclamped = lnlib.math.log(0.5, math.abs((valHalf - val0) / (val1 - val0)))
+        local accel = lnlib.math.clamp(accel_unclamped, 0.15, 8);
+        
+        table.insert( tfs, lnlib.tag.t(t0, t1, accel, formtagsv2(tags, val1)) )
       end
       return table.concat(tfs)
     end
