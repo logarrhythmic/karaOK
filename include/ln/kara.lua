@@ -799,7 +799,12 @@ lnlib = {
       if modifierFunctions then
         aegisub.log(2, "Warning: this syntax is deprecated. Instead of a separate modifierFunctions table, please bundle the modifier functions with their tags in the tags table. For more information, see the readme.\n")
         for i,val in ipairs(tags) do
-          val[2] = modifierFunctions[(i-1) % #modifierFunctions+1]
+          local modfun = modifierFunctions[(i-1) % #modifierFunctions+1]
+          if type(modfun) == "function" then
+            val[2] = modfun
+          elseif modfun ~= nil then
+            aegisub.log(2, "Warning: modifierFunctions should be functions. Got %s for tag \\%s\n", type(modfun), val[1])
+          end
         end
       end
 
