@@ -214,18 +214,18 @@ end
 
 local function formtag(tag, argumentlist)
   if type(argumentlist) ~= "table" then argumentlist = { argumentlist } end;
-  local argstring = argumentlist[1];
+  local value = argumentlist[1];
   
   if #argumentlist == 1 then
-    if type(argstring) == "number" then
+    if type(value) == "number" then
       if tag == "alpha" or tag == "1a" or tag == "2a" or tag == "3a" or tag == "4a" then
-        argstring = lnlib.math.clamp(tonumber(argstring), 0, 255)
-        return ("\\%s&H%02X&"):format(tag, argstring);
+        value = lnlib.math.clamp(value, 0, 255)
+        return ("\\%s&H%02X&"):format(tag, value);
       else
-        return ("\\%s%.2f"):format(tag,argstring);
+        return ("\\%s%.2f"):format(tag,value);
       end
     else
-      return ("\\%s%s"):format(tag,argstring);
+      return ("\\%s%s"):format(tag,value);
     end
   end
 
