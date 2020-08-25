@@ -219,6 +219,7 @@ local function formtag(tag, argumentlist)
   if #argumentlist == 1 then
     if type(argstring) == "number" then
       if tag == "alpha" or tag == "1a" or tag == "2a" or tag == "3a" or tag == "4a" then
+        argstring = lnlib.math.clamp(tonumber(argstring), 0, 255)
         return ("\\%s&H%02X&"):format(tag, argstring);
       else
         return ("\\%s%.2f"):format(tag,argstring);
