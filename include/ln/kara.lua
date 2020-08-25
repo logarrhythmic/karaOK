@@ -833,7 +833,7 @@ lnlib = {
         local val1    = wave.getValue(i + timestep - delay)
 
         local accel_unclamped = lnlib.math.log(0.5, math.abs((valHalf - val0) / (val1 - val0)))
-        local accel = lnlib.math.clamp(accel_unclamped, 0.15, 8);
+        local accel = lnlib.math.clamp(accel_unclamped, 0.01, 100);
         
         local _tags = formtagsv2(tags, val1)
         if _tags ~= prevtags then
