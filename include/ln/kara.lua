@@ -773,7 +773,7 @@ lnlib = {
     end,
 
     transform = function(wave, tags, starttime, endtime, delay, framestep, jumpToStartingPosition, argY, argZ)
-      framestep = framestep or 1
+      framestep = framestep or 2
       starttime = starttime or 0
       endtime = endtime or tenv.line.duration
       delay = delay or 0
@@ -809,9 +809,9 @@ lnlib = {
         end
       end
 
-      dutyCycle = dutyCycle or 0.2 -- todo: explain this in readme
+      dutyCycle = dutyCycle or 1
 
-      jumpToStartingPosition = jumpToStartingPosition or true -- todo: fix readme regarding this
+      jumpToStartingPosition = jumpToStartingPosition or true
 
       local timestep = framestep * 1000 / 23.976
       local tfs = {}
