@@ -212,7 +212,7 @@ Gets the value of the wave function at ```time```.
 
 ---
 
-	ln.wave.transform(wave, tags, starttime, endtime, delay, framestep, jumpToStartingPosition, modifierFunctions, dutyCycle) -> string
+	ln.wave.transform(wave, tags, starttime, endtime, delay, framestep, jumpToStartingPosition, dutyCycle) -> string
 	
 Creates a set of transforms according to a wave function.
 
@@ -220,20 +220,19 @@ Creates a set of transforms according to a wave function.
 
 ```tags``` is a table of strings that are the aegisub override tags to animate, for example ```{"fscx", "fscy"}```. A single string will work too, it converts it to a list automatically and carries on. Color tags, font changes and other tags that take string values are generally not supported for obvious reasons, but alpha tags are. I might add color support at a later point in time, for animated rainbows and other silly stuff.
 
+```tags``` can *also* be a list of string and function pairs, such as ```{{"fscx", function(x) return -x end}, {"fscy", function(x) return x*x end}}```. If functions are passed along with the tag strings, they will transform the value received from the waveform at each point in time. Useful for using the same waveform on several different tags, such as scale and shear at the same time - one takes values around 100 and the other around 0. 
+
 ```starttime``` is the time to start animating (relative to line start, like with transform tags). Can be left empty/nil to default to line start.
 
 ```endtime``` is the time to end animating (relative to line start, like with transform tags). Can be left empty/nil to default to line end.
 
 ```delay``` is a time value in milliseconds that the waveform is delayed by. Can be left empty/nil to default to 0.
 
-```framestep``` is the time in frames (assuming 23.976 fps) between generated transform tags' start times. 1 will result in the animation following the waveform exactly at normal framerates, for 60fps playback you could use 0.4 and that would work too, and sine waves still look pretty convincing with values up to 3 thanks to some creative use of the acceleration value in transform tags. If left empty/nil, defaults to 1.
+```framestep``` is the time in frames (assuming 23.976 fps) between generated transform tags' start times. 1 will result in the animation following the waveform exactly at normal framerates, for 60fps playback you could use 0.4 and that would work too, and sine waves still look pretty convincing with values up to 3 thanks to some creative use of the acceleration value in transform tags. If left empty/nil, defaults to 2.
 
-```jumpToStartingPosition``` is a boolean value. If true, the function will generate an instant (technically 1ms) transform at ```starttime``` to jump the affected values to the correct number instantly. Without this it'll blend in a bit smoother, but might look bad in some cases. If left empty/nil, defaults to false.
+```jumpToStartingPosition``` is a boolean value. If true, the function will generate an instant (technically 1ms) transform at ```starttime``` to jump the affected values to the correct number instantly. Without this it'll blend in a bit smoother, but might look bad in some cases. If left empty/nil, defaults to true.
 
-```modifierFunctions``` is a table of functions to run the waveform's values through. The functions are run for the value of the corresponding tag in ```tags```. Useful for using the same waveform on several different tags, such as scale and shear at the same time - one takes values around 100 and the other around 0. Will loop around to start with the first function again if there are less functions than tags to run on. If left empty/nil, defaults to f(x)=x.
-Example: with a sine wave set to an amplitude of 30, ```ln.wave.transform(..., {"fscy","fax"},..., {function(x) return 120+x end function(x) return x/40 end},...)``` to make an effect that looks like wheat swaying (maybe, I didn't look to check).
-
-```dutyCycle``` is a number value between 0 and 1 that dictates how much of each step the transform is active. With 1, ```framestep``` values above 1 will animate smoothly, and with values near 0 they will jump to the given value near-instantly - might be useful if you want a lower framerate than on the video for some reason. If left empty/nil, defaults to 0.2.
+```dutyCycle``` is a number value between 0 and 1 that dictates how much of each step the transform is active. With 1, ```framestep``` values above 1 will animate smoothly, and with values near 0 they will jump to the given value near-instantly - in conjunction with a larger framestep this might be useful if you want to emulate a lower framerate to match things that are animated every second or third frame. If left empty/nil, defaults to 1.
 
 Example of use (run on an \an5 line):
 
