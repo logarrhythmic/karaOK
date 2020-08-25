@@ -790,7 +790,7 @@ lnlib = {
         
       for i,val in ipairs(tags) do
         if type(val) ~= "table" then
-          val = {val, identity}
+          tags[i] = {val, identity}
         elseif val[2] == nil then
           val[2] = identity
         end
