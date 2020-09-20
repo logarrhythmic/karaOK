@@ -707,6 +707,8 @@ lnlib = {
       local ftable = {}
       return {
         addWave = function(waveform, wavelength, amplitude, phase)
+          amplitude = amplitude or 1
+          phase = phase or 0
           if waveform == "noise" or waveform == "random" then
             local randomvalues = {}
             math.randomseed(phase)
