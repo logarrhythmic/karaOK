@@ -790,12 +790,16 @@ lnlib = {
       end
 
       local identity = function(x) return x end
-        
-      for i,val in ipairs(tags) do
-        if type(val) ~= "table" then
-          tags[i] = {val, identity}
-        elseif val[2] == nil then
-          val[2] = identity
+
+      if type(tags) == "string" then
+        tags = {{tags, identity}}
+      else
+        for i,val in ipairs(tags) do
+          if type(val) ~= "table" then
+            tags[i] = {val, identity}
+          elseif val[2] == nil then
+            val[2] = identity
+          end
         end
       end
       -- transform old syntax into new syntax
