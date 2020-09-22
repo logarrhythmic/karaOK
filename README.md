@@ -228,7 +228,7 @@ Creates a set of transforms according to a wave function.
 
 ```delay``` is a time value in milliseconds that the waveform is delayed by. Can be left empty/nil to default to 0.
 
-```framestep``` is the time in frames (assuming 23.976 fps) between generated transform tags' start times. 1 will result in the animation following the waveform exactly at normal framerates, for 60fps playback you could use 0.4 and that would work too, and sine waves still look pretty convincing with values up to 3 thanks to some creative use of the acceleration value in transform tags. If left empty/nil, defaults to 2.
+```framestep``` is the time in frames (assuming 23.976 fps) between generated transform tags' start times. 1 will result in the animation following the waveform exactly at normal framerates, for 60fps playback you could use 0.4 and that would work too, and sine waves still look pretty convincing with values up to 3 thanks to some creative use of the acceleration value in transform tags. However, because ASS transforms are monotonic, if the start and end times fall on either side of a peak, the wave won't reach the peak. This is usually not a problem, unless your wavelength is significantly less than 1 second. If left empty/nil, defaults to 2.
 
 ```jumpToStartingPosition``` is a boolean value. If true, the function will generate an instant (technically 1ms) transform at ```starttime``` to jump the affected values to the correct number instantly. Without this it'll blend in a bit smoother, but might look bad in some cases. If left empty/nil, defaults to true.
 
