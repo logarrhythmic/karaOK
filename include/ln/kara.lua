@@ -713,7 +713,7 @@ lnlib = {
             local randomvalues = {}
             math.randomseed(phase)
             for i = 1, wavelength do
-              randomvalues[math.floor((i+phase) % wavelength)] = amplitude * (math.random() * 2 - 1)
+              randomvalues[math.floor((i+phase) % wavelength) + 1] = amplitude * (math.random() * 2 - 1)
             end
             table.insert(ftable, {form="noise", w=wavelength,a=amplitude,p=phase, val=randomvalues})
           else
@@ -737,7 +737,7 @@ lnlib = {
             local randomvalues = {}
             math.randomseed(phase)
             for i = 1, wavelength do
-              randomvalues[math.floor((i+phase) % wavelength)] = amplitude * (math.random() * 2 - 1)
+              randomvalues[math.floor((i+phase) % wavelength) + 1] = amplitude * (math.random() * 2 - 1)
             end
             table.insert(ftable, {form="noise", w=wavelength,a=amplitude,p=phase, val=randomvalues})
           else
