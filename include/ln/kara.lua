@@ -817,7 +817,7 @@ lnlib = {
 
       dutyCycle = dutyCycle or 1
 
-      jumpToStartingPosition = jumpToStartingPosition or true
+      if jumpToStartingPosition == nil then jumpToStartingPosition = true end
 
       local timestep = framestep * 1000 / 23.976
       local tfs = {}
