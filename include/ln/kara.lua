@@ -114,7 +114,7 @@ local lnlib
 
 local function startbuffertime(k_min, fad_min)
   if lnlib.line.tag("fad") ~= "" then
-    return math.max(fad_min, tonumber(string.match(lnlib.line.tag("fad"), "(%d+),%d+"))), true
+    return math.max(fad_min, tonumber(string.match(lnlib.line.tag("fad"), "(%d+),%s*%d+"))), true
   else
     if #(tenv.line.kara or {}) == 0 then
       return k_min, false
@@ -128,7 +128,7 @@ end
 
 local function endbuffertime(k_min, fad_min)
   if lnlib.line.tag("fad") ~= "" then
-    return math.max(fad_min, tonumber(string.match(lnlib.line.tag("fad"), "%d+,(%d+)"))), true
+    return math.max(fad_min, tonumber(string.match(lnlib.line.tag("fad"), "%d+,%s*(%d+)"))), true
   else
     if #(tenv.line.kara or {}) == 0 then
       return k_min, false
