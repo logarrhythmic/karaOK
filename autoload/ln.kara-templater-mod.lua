@@ -338,6 +338,7 @@ function apply_templates(meta, styles, subs, templates)
 		-- put in some standard libs, and the subs object for much fun :3
 		string = string,
 		math = math,
+		table = table,
 		subs = subs,
 		_G = _G
 	}
