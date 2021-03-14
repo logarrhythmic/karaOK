@@ -340,7 +340,12 @@ function apply_templates(meta, styles, subs, templates)
 		math = math,
 		table = table,
 		subs = subs,
-		_G = _G
+		_G = _G,
+		ipairs = ipairs,
+		pairs = pairs,
+		tonumber = tonumber,
+		tostring = tostring,
+		type = type
 	}
 	tenv.tenv = tenv
 
