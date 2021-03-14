@@ -1,5 +1,5 @@
 # Part A: the modified templater 
-The automation folder in this repository contains a modified karatemplater script that is mostly compatible with the normal one, with a few caveats.
+The autoload folder in this repository contains a modified karatemplater script that is mostly compatible with the normal one, with a few caveats.
 
 ## Changes from vanilla templater
 ### Keyword changes (most important, partially breaking): `pre-line` is just `line`, `line` is `lsyl`, and there are four new keywords: `lword`, `lchar`, `word`, and `furichar`
