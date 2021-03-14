@@ -31,19 +31,6 @@
 -- Parse and apply a karaoke effect written in ASS karaoke template language
 -- See help file and wiki for more information on this
 
---[[
- List of unauthorized unofficial modifications by logarithm:
-  - gave the execution environment access to the subtitles object
-  - made notext and noblank modifiers work with pre-line templates and non-k-timed lines like they do with other template types(maybe some other stuff too)
-  - added variable ci, available with by-char templates, which tells which letter of the current syllable is being processed
-  - increased inline variable positioning precision to .1 pixel
-  - added option to generate kfx without generating furigana styles
-  - calling maxloop() with something below the current j will abort outputting the current template line
-  - redid line, preline, syl and other such keywords: pre-line is now just line, old line is now lsyl, and lword/lchar are like lsyl for words and chars. char and word also work with code lines
-  - added 'style' modifier which works kind of like fxgroup: for example templates with 'style romaji' are run on only lines with "romaji" in the style name. Intended for use with the 'all' keyword
-	- added k_retime function that acts like retime but moves karaoke timings as needed (you should only run this once per line)
- ]]
-
 local tr = aegisub.gettext
 
 script_name = tr"Karaoke Templater mod"
