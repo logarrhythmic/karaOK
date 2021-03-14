@@ -31,8 +31,9 @@ For example, a `template line all style romaji` will run on all lines with a sty
 ### There is a character index variable `ci`
 This gives the index number of the character at the start of the current unit being processed (word, syl, char).
 
-### The template execution environment has access to the `subtitles` object in addition to the `string` library, the `math` library, and `_G`.
-If you don't know what that means, you probably don't need to care. The `subtitles` object is what automation scripts use to access any given line in the ASS file. This can be used in kfx to get the next or previous line, for example. For specific documentation on the `subtitles` object, see the Aegisub manual.
+### The template execution environment has direct access to the `subtitles` object and the `table` library in addition to the `string` library, the `math` library, and `_G`.
+The `subtitles` object is what automation scripts use to access any given line in the ASS file. This can be used in kfx to get the next or previous line, for example. For specific documentation on the `subtitles` object, see the Aegisub manual. 
+The `table` library has essential features such as `table.insert`.
 
 ### `notext` and `noblank` work with all template types
 In the vanilla templater, this is not the case. `notext` was a particularly annoying omission, since vector drawings for non-k-timed lines got the line text added to the end. This was harmless, but annoyed me, and could be an issue if a symbol font is used to do similar things.
