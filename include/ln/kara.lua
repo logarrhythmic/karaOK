@@ -838,6 +838,19 @@ lnlib = {
         local valHalf = wave.getValue(i + timestep / 2 - delay)
         local val1    = wave.getValue(i + timestep - delay)
 
+        --[[
+        -- Assumed ASS accel curve:
+        -- ratio = ((t - t0) / (t1 - t0)) ^ accel
+        -- value = val0 + (val1 - val0) * ratio
+        -- Ratio range is 0-1 so exponent just curves it.
+        -- knowns: value = valHalf
+        -- ((t - t0) / (t1 - t0)) = 0.5 since we're halfway through the timestep, so:
+        --  ratio = 0.5 ^ accel
+        -- place the knowns into the latter equation:
+        -- valHalf = val0 + (val1 - val0) * 0.5 ^ accel
+        -- (valHalf - val0) / (val1 - val0) = 0.5 ^ accel
+        -- log_0.5( (valHalf - val0) / (val1 - val0) ) = log_0.5(0.5 ^accel) = accel
+        --]]
         local accel_unclamped = lnlib.math.log(0.5, math.abs((valHalf - val0) / (val1 - val0)))
         local accel = lnlib.math.clamp(accel_unclamped, 0.01, 100);
         
