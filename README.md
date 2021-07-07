@@ -125,6 +125,12 @@ Same as above, but returns all matches for each tag. Useful for transforms.
 
 ---
 
+    ln.line.tags(list, true) -> table
+ 
+Same as above, but returns a table with each match at a separate index.
+
+---
+
     ln.line.c(n) -> string
     shorthand: gc(n) -> string
  
