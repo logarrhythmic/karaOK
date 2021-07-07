@@ -210,9 +210,9 @@ Creates a transform tag, works exactly like simply writing out the transform tag
 
 ---
 
-	ln.tag.parse_transform(tag) -> number, number, number, string
+	ln.tag.parse_transform(tag) -> table
 	
-Returns the start time, end time, acceleration and transformed tags of a transform tag.
+Returns a table with the start time `t0`, end time `t1`, acceleration `a` and transformed tags `tags` of a transform tag.
 
 ---
 
