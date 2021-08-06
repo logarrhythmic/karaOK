@@ -1068,10 +1068,11 @@ lnlib = {
       end
       return table.concat(strTab, " ")
     end,
-    triangle = function(side_length) -- makes an equilateral triangle (please keep side_length even)
-      local formatstr = "m %d %d l %d %d %d %d %d %d"
+    triangle = function(side_length) -- makes an equilateral triangle
+      local formatstr = "m %.2f %.2f l %.2f %.2f %.2f %.2f %.2f %.2f"
       local h = math.sqrt(3)/2*side_length
-      local x0, y0, x1, y1, x2, y2 = 0, h, side_length, h, side_length/2, 0
+      local midh = side_length / (2*math.sqrt(3))
+      local x0, y0, x1, y1, x2, y2 = -side_length/2, -midh, side_length/2, -midh, 0, h-midh
       return formatstr:format(x0, y0, x1, y1, x2, y2, x0, y0)
     end,
     gear = function(r1, r2, r3, n, t, tt1, tt2) -- inner radius, middle radius, outer radius, number of teeth, thickness of teeth at base (0-1 for 0-100% of max), middle (0-1 for 0-100% of max), and top land (0-1 for 0-100% of t)
