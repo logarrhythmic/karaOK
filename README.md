@@ -409,7 +409,8 @@ Makes an equilateral triangle with given side length. Note: The shape is centere
 
     ln.shapes.gear(r1, r2, r3, n, t, tt1, tt2) -> string
 
-inner radius, middle radius, outer radius, number of teeth, thickness of teeth at base (0-1 for 0-100% of max), middle (0-1 for 0-100% of max), and top land (0-1 for 0-100% of t)
+Makes a cogwheel shape. `r1`, `r2` and `r3` are the radii that define the size of the central circle and the length and shape of the teeth. `n` is the number of teeth. `t` is the ratio of the available space that each tooth occupies on the central circle. `tt1` and `tt2` control the beveling on the teeth. See the image for a better idea of what's happening. 
+![image](https://user-images.githubusercontent.com/1952758/128567717-77da0917-33ae-4026-957d-ffe526261f67.png)
 
 ---
 
