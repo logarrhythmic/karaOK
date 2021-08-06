@@ -371,3 +371,54 @@ Returns -1 for negative numbers ```n``` and 1 otherwise.
 	Additional shorthands:
 	rnd(...) for math.random(...)
 	fl(n) for math.floor(n)
+
+### shapes table
+
+Functions to generate various shapes, as well as some specific shapes as strings.
+
+    ln.shapes.shift(shape, x, y) -> string
+
+Shifts the given shape `x` pixels right and `y` pixels down.
+
+---
+
+    ln.shapes.rectangle(width, height) -> string
+
+Makes a rectangle with the given width and height.
+
+---
+
+    ln.shapes.roundedRectangle(width, height, radius) -> string
+
+As above, but with rounded corners of radius `radius`.
+
+---
+
+    ln.shapes.circle(radius, segments) -> string
+
+Makes a properly centered approximation of a circle of radius `radius`. 
+3 segments is particularly useful, as it looks almost perfect and is harder to calculate than 4 without letting this code do the math.
+
+---
+
+    ln.shapes.triangle(side) -> string
+
+Makes an equilateral triangle with given side length. Note: The shape is centered on the center of the triangle's bounding box, not the geometric center.
+
+---
+
+    ln.shapes.gear(r1, r2, r3, n, t, tt1, tt2) -> string
+
+inner radius, middle radius, outer radius, number of teeth, thickness of teeth at base (0-1 for 0-100% of max), middle (0-1 for 0-100% of max), and top land (0-1 for 0-100% of t)
+
+---
+
+    ln.shapes.star
+    ln.shapes.heart
+    ln.shapes.twinkle1
+    ln.shapes.twinkle2
+    ln.shapes.twinkle3
+    ln.shapes.snowflake
+    ln.shapes.stolengleam
+
+Pre-defined shapes.
