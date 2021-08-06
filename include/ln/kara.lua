@@ -1068,7 +1068,7 @@ lnlib = {
       end
       return table.concat(strTab, " ")
     end,
-    triangle = function(side_length) -- makes an equilateral triangle (please keep side_length even)
+    triangle = function(side_length) -- makes an equilateral triangle
       local formatstr = "m %.2f %.2f l %.2f %.2f %.2f %.2f %.2f %.2f"
       local h = math.sqrt(3)/2*side_length
       local midh = side_length / (2*math.sqrt(3))
