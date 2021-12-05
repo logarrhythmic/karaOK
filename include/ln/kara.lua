@@ -275,7 +275,12 @@ local function shiftDrawing(str, x, y)
     local origlen = #pair
     local pairx = pair:match(COORD)
     local pairy = pair:match(COORD, pair:find(pairx)+#pairx)
-    pair = string.format("%d %d",tonumber(pairx) + x, tonumber(pairy) + y)
+    local resx, resy = tonumber(pairx) + x, tonumber(pairy) + y
+    if math.floor(resx) ~= resx or math.floor(resx) ~= resy then
+      pair = string.format("%.2f %.2f", resx, resy)
+    else
+      pair = string.format("%d %d", resx, resy)
+    end
     txt = txt:sub(1,starti-1) .. pair .. txt:sub(starti + origlen)
     i = starti + #pair
   end
