@@ -265,15 +265,16 @@ local function formtagsv2(tags_with_funcs, value)
 end
 
 local function shiftDrawing(str, x, y)
+  local COORD = "%-?[%d.]+"
   local txt = str
   local i = 1
   while true do
-    local pair = txt:match("%-?%d+ %-?%d+", i)
+    local pair = txt:match(COORD.." "..COORD, i)
     if not pair then break end
-    local starti = txt:find("%-?%d+ %-?%d+", i)
+    local starti = txt:find(COORD.." "..COORD, i)
     local origlen = #pair
-    local pairx = pair:match("%-?%d+")
-    local pairy = pair:match("%-?%d+", pair:find(pairx)+#pairx)
+    local pairx = pair:match(COORD)
+    local pairy = pair:match(COORD, pair:find(pairx)+#pairx)
     pair = string.format("%d %d",tonumber(pairx) + x, tonumber(pairy) + y)
     txt = txt:sub(1,starti-1) .. pair .. txt:sub(starti + origlen)
     i = starti + #pair
