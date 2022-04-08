@@ -709,9 +709,9 @@ lnlib = {
   },
 
   wave = {
-    new = function()
+    new = function(...)
       local ftable = {}
-      return {
+      local self = {
         addWave = function(waveform, wavelength, amplitude, phase)
           amplitude = amplitude or 1
           phase = phase or 0
@@ -730,6 +730,11 @@ lnlib = {
 
         addFunction = function(func)
           table.insert(ftable, {form="function", f = func})
+          return ""
+        end,
+
+        addConstant = function(c)
+          table.insert(ftable, {form="function", f = function() return c end})
           return ""
         end,
 
@@ -778,6 +783,12 @@ lnlib = {
           return y
         end
       }
+
+      if #arg > 0 then
+        self.addWave(unpack(arg))
+      end
+
+      return self
     end,
 
     transform = function(wave, tags, starttime, endtime, delay, framestep, jumpToStartingPosition, argY, argZ)
