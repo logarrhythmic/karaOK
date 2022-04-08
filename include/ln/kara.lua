@@ -744,6 +744,8 @@ lnlib = {
 
         setWave = function(waveform, wavelength, amplitude, phase)
           cleartable(ftable)
+          amplitude = amplitude or 1
+          phase = phase or 0
           if waveform == "noise" or waveform == "random" then
             local randomvalues = {}
             math.randomseed(phase)
@@ -760,6 +762,12 @@ lnlib = {
         setFunction = function(func)
           cleartable(ftable)
           table.insert(ftable, {form="function", f = func})
+          return ""
+        end,
+
+        setConstant = function(c)
+          cleartable(ftable)
+          table.insert(ftable, {form="function", f = function() return c end})
           return ""
         end,
 
