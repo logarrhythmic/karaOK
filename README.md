@@ -241,6 +241,8 @@ Arguably the most advanced part of the library so far. Useful for shaking text, 
 
 Creates a new table to store the wave function you're creating.
 
+If given parameters, immediately calls ```addWave``` with them.
+
 ---
 
 	waveX.addWave(waveform, wavelength, amplitude, phase)
