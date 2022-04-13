@@ -792,8 +792,8 @@ lnlib = {
         end
       }
 
-      if #arg > 0 then
-        self.addWave(unpack(arg))
+      if ... then
+        self.addWave(...)
       end
 
       return self
