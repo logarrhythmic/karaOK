@@ -241,6 +241,8 @@ Arguably the most advanced part of the library so far. Useful for shaking text, 
 
 Creates a new table to store the wave function you're creating.
 
+If given parameters, immediately calls ```addWave``` with them.
+
 ---
 
 	waveX.addWave(waveform, wavelength, amplitude, phase)
@@ -262,6 +264,26 @@ Adds an elementary waveform or white noise to the wave function.
 Adds a user defined function to the wave function. ```func``` must be a function that takes a single value, time.
 
 Example: ```!waveX.addFunction(function(t) return _G.math.random()*2-1 end)!``` will work as noise. ```!waveX.addFunction(function(t) return t*t end)!``` will make an upwards-opening parabola.
+
+---
+
+	waveX.addConstant(c)
+
+Adds a constant value to the wave function. Shorthand for ```waveX.addFunction(function() return c end)```, convenient for centering alpha or colors in the 0..255 range.
+
+---
+
+	waveX.clear()
+
+Removes all previously registered waveforms/functions from the wave table.
+
+---
+
+	waveX.setWave(...)
+	waveX.setFunction(func)
+	waveX.setConstant(c)
+
+Clears the wave table, then adds the corresponding component.
 
 ---
 

@@ -709,9 +709,9 @@ lnlib = {
   },
 
   wave = {
-    new = function()
+    new = function(...)
       local ftable = {}
-      return {
+      local self = {
         addWave = function(waveform, wavelength, amplitude, phase)
           amplitude = amplitude or 1
           phase = phase or 0
@@ -733,12 +733,19 @@ lnlib = {
           return ""
         end,
 
+        addConstant = function(c)
+          table.insert(ftable, {form="function", f = function() return c end})
+          return ""
+        end,
+
         clear = function()
           cleartable(ftable)
         end,
 
         setWave = function(waveform, wavelength, amplitude, phase)
           cleartable(ftable)
+          amplitude = amplitude or 1
+          phase = phase or 0
           if waveform == "noise" or waveform == "random" then
             local randomvalues = {}
             math.randomseed(phase)
@@ -755,6 +762,12 @@ lnlib = {
         setFunction = function(func)
           cleartable(ftable)
           table.insert(ftable, {form="function", f = func})
+          return ""
+        end,
+
+        setConstant = function(c)
+          cleartable(ftable)
+          table.insert(ftable, {form="function", f = function() return c end})
           return ""
         end,
 
@@ -778,6 +791,12 @@ lnlib = {
           return y
         end
       }
+
+      if ... then
+        self.addWave(...)
+      end
+
+      return self
     end,
 
     transform = function(wave, tags, starttime, endtime, delay, framestep, jumpToStartingPosition, argY, argZ)
