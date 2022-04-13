@@ -265,6 +265,26 @@ Example: ```!waveX.addFunction(function(t) return _G.math.random()*2-1 end)!``` 
 
 ---
 
+	waveX.addConstant(c)
+
+Adds a constant value to the wave function. Shorthand for ```waveX.addFunction(function() return c end)```, convenient for centering alpha or colors in the 0..255 range.
+
+---
+
+	waveX.clear()
+
+Removes all previously registered waveforms/functions from the wave table.
+
+---
+
+	waveX.setWave(...)
+	waveX.setFunction(func)
+	waveX.setConstant(c)
+
+Clears the wave table, then adds the corresponding component.
+
+---
+
 	waveX.getValue(time) -> number
 	
 Gets the value of the wave function at ```time```.
