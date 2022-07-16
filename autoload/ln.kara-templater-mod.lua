@@ -1306,7 +1306,7 @@ function macro_can_template(subs)
 	return false
 end
 
-aegisub.register_macro(tr"Apply karaoke template with modified script (no furigana)", tr"Applies karaoke effects from templates, does not generate furigana styles", macro_apply_templates_furioff, macro_can_template)
-aegisub.register_macro(tr"Apply karaoke template with modified script", tr"Applies karaoke effects from templates", macro_apply_templates, macro_can_template)
+aegisub.register_macro(tr"Apply karaoke template (modded)", tr"Applies karaoke effects from templates, does not generate furigana styles", macro_apply_templates_furioff, macro_can_template)
+aegisub.register_macro(tr"Apply karaoke template (modded with furigana)", tr"Applies karaoke effects from templates, generates furigana styles", macro_apply_templates, macro_can_template)
 aegisub.register_filter(tr"Karaoke template (modded)", tr"Apply karaoke effect templates to the subtitles.\n\nSee the help file for information on how to use this.", 2000, filter_apply_templates)
 aegisub.register_filter(tr"Karaoke template (modded, furigana off)", tr"Apply karaoke effect templates to the subtitles.\n\nSee the help file for information on how to use this.", 2000, filter_apply_templates_furioff)
