@@ -82,29 +82,40 @@ end
 
 local tenv
 
+-- returns the piece of text currently being worked on
+local function kunit()
+  --[[    LEGACY                                                                  0XTEMPLT
+    syl   current workpiece (option 1)                                            current syllable or null if not working on a syllable (option 1)
+    char  current char or null                                                    current char or null if not working on a char (option 2)
+    syll  current syllable or the syllable the current char is in or null         null
+    word  current word or the word the current syllable or char is in             current word or null if not working on a word (option 3)
+  ]]
+  return tenv.syl or tenv.char or tenv.word
+end
+
 local function an2point(alignment)
   local x = 1 + ((alignment - 1) % 3);
   local y = 1 + (alignment - x) / 3;
-  local yval = tenv.line.bottom;
+  local yval = tenv.orgline.bottom;
   local xval
   if y == 2 then
-    yval = tenv.line.middle;
+    yval = tenv.orgline.middle;
   elseif y > 2 then
-    yval = tenv.line.top;
+    yval = tenv.orgline.top;
   end
-  if tenv.syl ~= nil then
-    xval = tenv.line.left + tenv.syl.left;
+  if kunit() ~= nil then
+    xval = tenv.orgline.left + kunit().left;
     if x == 2 then
-      xval = tenv.line.left + tenv.syl.center;
+      xval = tenv.orgline.left + kunit().center;
     elseif x > 2 then
-      xval = tenv.line.left + tenv.syl.right;
+      xval = tenv.orgline.left + kunit().right;
     end
   else
-    xval = tenv.line.left;
+    xval = tenv.orgline.left;
     if x == 2 then
-      xval = tenv.line.center;
+      xval = tenv.orgline.center;
     elseif x > 2 then
-      xval = tenv.line.right;
+      xval = tenv.orgline.right;
     end
   end
   return xval, yval;
@@ -116,11 +127,11 @@ local function startbuffertime(k_min, fad_min)
   if lnlib.line.tag("fad") ~= "" then
     return math.max(fad_min, tonumber(string.match(lnlib.line.tag("fad"), "(%d+),%s*%d+"))), true
   else
-    if #(tenv.line.kara or {}) == 0 then
+    if #(tenv.orgline.kara or {}) == 0 then
       return k_min, false
     end
-    if tenv.line.kara[1].text == "" or tenv.line.kara[1].text == " " then
-      return math.max(k_min, tenv.line.kara[1].duration), false
+    if tenv.orgline.kara[1].text == "" or tenv.orgline.kara[1].text == " " then
+      return math.max(k_min, tenv.orgline.kara[1].duration), false
     end
   end
   return k_min, false;
@@ -130,11 +141,11 @@ local function endbuffertime(k_min, fad_min)
   if lnlib.line.tag("fad") ~= "" then
     return math.max(fad_min, tonumber(string.match(lnlib.line.tag("fad"), "%d+,%s*(%d+)"))), true
   else
-    if #(tenv.line.kara or {}) == 0 then
+    if #(tenv.orgline.kara or {}) == 0 then
       return k_min, false
     end
-    if tenv.line.kara[#(tenv.line.kara)].text == "" or tenv.line.kara[#(tenv.line.kara)].text == " " then
-      return math.max(k_min, tenv.line.kara[#(tenv.line.kara)].duration), false
+    if tenv.orgline.kara[#(tenv.orgline.kara)].text == "" or tenv.orgline.kara[#(tenv.orgline.kara)].text == " " then
+      return math.max(k_min, tenv.orgline.kara[#(tenv.orgline.kara)].duration), false
     end
   end
   return k_min, false
@@ -326,16 +337,16 @@ lnlib = {
   end,
   --[[ chari = function() -- not relevant and also broken with kara templater mod, use syl.ci for all your needs
     local out = 0
-    for i=1,tenv.syl.i-1 do
+    for i=1,kunit().i-1 do
       out = out + unicode.len(tenv.line.kara[i].text_stripped)
     end
-    return (tenv.syl.ci or 1) + out
+    return (kunit().ci or 1) + out
   end, ]]--
   syltime = function(p)
-    return tenv.syl.start_time+tenv.syl.duration*(p or 0)
+    return kunit().start_time+kunit().duration*(p or 0)
   end,
   syldur = function(p)
-    return tenv.syl.duration*(p or 0)
+    return kunit().duration*(p or 0)
   end,
   randomize = function(variable_name, min, max, override)
     if not override and randomizer_table[variable_name] == nil and tenv[variable_name] ~= nil then
@@ -352,7 +363,7 @@ lnlib = {
       local ret = {}
       if type(tags) == "string" then tags = {tags} end
       for key,val in pairs(tags) do
-        table.insert(ret,tenv.line.raw:sub(findtag(tenv.line.raw, val)))
+        table.insert(ret,tenv.orgline.raw:sub(findtag(tenv.orgline.raw, val)))
       end
       return table.concat(ret)
     end,
@@ -361,11 +372,11 @@ lnlib = {
       if type(tags) == "string" then tags = {tags} end
       for i=1,#tags do
         local ci = 1
-        while ci < #tenv.line.raw and ci > 0 do
-          local si, ei = findtag(tenv.line.raw, tags[i], ci)
+        while ci < #tenv.orgline.raw and ci > 0 do
+          local si, ei = findtag(tenv.orgline.raw, tags[i], ci)
           if ei and ei ~= 0 then
             ci = ei+1
-            table.insert(ret, tenv.line.raw:sub(si, ei))
+            table.insert(ret, tenv.orgline.raw:sub(si, ei))
           else ci = -1 end
         end
       end
@@ -373,11 +384,11 @@ lnlib = {
     end,
     style_c = function(n)
       n = n or 1
-      return color_from_style(tenv.line.styleref["color" .. n])
+      return color_from_style(tenv.orgline.styleref["color" .. n])
     end,
     style_a = function(n)
       n = n or 1
-      return alpha_from_style(tenv.line.styleref["color" .. n])
+      return alpha_from_style(tenv.orgline.styleref["color" .. n])
     end,
     c = function(n)
       n = n or 1
@@ -385,7 +396,7 @@ lnlib = {
       if tag ~= "" then
         return tag:match("&H%x%x%x%x%x%x&")
       else
-        return color_from_style(tenv.line.styleref["color" .. n]);
+        return color_from_style(tenv.orgline.styleref["color" .. n]);
       end
     end,
     a = function(n)
@@ -394,11 +405,11 @@ lnlib = {
       if tag ~= "" then
         return tag:match("&H%x%x&")
       else
-        return alpha_from_style(tenv.line.styleref["color" .. n]);
+        return alpha_from_style(tenv.orgline.styleref["color" .. n]);
       end
     end,
     buffers = function(startmin_k, endmin_k, startmin_fad, endmin_fad)
-      local buf = buffers[tenv.line.start_time .."-".. tenv.line.end_time]
+      local buf = buffers[tenv.orgline.start_time .."-".. tenv.orgline.end_time]
       if buf == nil then
         startmin_fad = startmin_fad or startmin_k
         endmin_fad = endmin_fad or endmin_k
@@ -408,18 +419,18 @@ lnlib = {
         buf.sb = math.max(buf.sb, fromtag and startmin_fad or startmin_k)
         buf.eb, fromtag = endbuffertime(0, 0)
         buf.eb = math.max(buf.eb, fromtag and endmin_fad or endmin_k)
-        buffers[tenv.line.start_time .."-".. tenv.line.end_time] = buf
+        buffers[tenv.orgline.start_time .."-".. tenv.orgline.end_time] = buf
       end
       return buf.sb,buf.eb
     end,
     len_stripped = function()
-      return unicode.len(tenv.line.text_stripped)
+      return unicode.len(tenv.orgline.text_stripped)
     end,
     len = function()
-      return unicode.len(tenv.line.text)
+      return unicode.len(tenv.orgline.text)
     end,
     len_raw = function()
-      return unicode.len(tenv.line.raw)
+      return unicode.len(tenv.orgline.raw)
     end
   },
   
@@ -428,7 +439,7 @@ lnlib = {
       local ret = {}
       if type(tags) == "string" then tags = {tags} end
       for i=1,#tags do
-        table.insert(ret,tenv.syl.text:sub(findtag(tenv.syl.text, tags[i])))
+        table.insert(ret,kunit().text:sub(findtag(kunit().text, tags[i])))
       end
       return table.concat(ret)
     end,
@@ -437,11 +448,11 @@ lnlib = {
       if type(tags) == "string" then tags = {tags} end
       for i=1,#tags do
         local ci = 1
-        while ci < #tenv.syl.text and ci > 0 do
-          local si, ei = findtag(tenv.syl.text, tags[i], ci)
+        while ci < #kunit().text and ci > 0 do
+          local si, ei = findtag(kunit().text, tags[i], ci)
           if ei and ei ~= 0 then
             ci = ei+1
-            table.insert(ret, tenv.syl.text:sub(si, ei))
+            table.insert(ret, kunit().text:sub(si, ei))
           else ci = -1 end
         end
       end
@@ -453,7 +464,7 @@ lnlib = {
       if tag ~= "" then
         return tag:match("&H%x%x%x%x%x%x&")
       else
-        return color_from_style(tenv.line.styleref["color" .. n]);
+        return color_from_style(tenv.orgline.styleref["color" .. n]);
       end
     end,
     a = function(n)
@@ -462,28 +473,28 @@ lnlib = {
       if tag ~= "" then
         return tag:match("&H%x%x&")
       else
-        return alpha_from_style(tenv.line.styleref["color" .. n]);
+        return alpha_from_style(tenv.orgline.styleref["color" .. n]);
       end
     end,
     len_stripped = function()
-      return unicode.len(tenv.syl.text_stripped)
+      return unicode.len(kunit().text_stripped)
     end,
     len = function()
-      return unicode.len(tenv.syl.text)
+      return unicode.len(kunit().text)
     end
   },
 
   tag = {
     pos = function(alignment, anchorpoint, xoffset, yoffset, line_kara_mode)
       if type(alignment) == "table" then
-        alignment = alignment.alignment or tenv.line.styleref.align or 5
-        anchorpoint = alignment.anchorpoint or alignment or tenv.line.styleref.align or 5
+        alignment = alignment.alignment or tenv.orgline.styleref.align or 5
+        anchorpoint = alignment.anchorpoint or alignment or tenv.orgline.styleref.align or 5
         xoffset = alignment.offset_x or 0
         yoffset = alignment.offset_y or 0
         line_kara_mode = alignment.line_kara_mode
       else
-        alignment = alignment or tenv.line.styleref.align or 5
-        anchorpoint = anchorpoint or alignment or tenv.line.styleref.align or 5
+        alignment = alignment or tenv.orgline.styleref.align or 5
+        anchorpoint = anchorpoint or alignment or tenv.orgline.styleref.align or 5
         xoffset = xoffset or 0
         yoffset = yoffset or 0
       end
@@ -493,7 +504,7 @@ lnlib = {
           x,y = an2point(anchorpoint)
           tenv.line.smart_pos_flag = true
         end
-      elseif tenv.syl == nil then
+      elseif kunit() == nil then
         x,y = an2point(anchorpoint)
       else
         x,y = an2point(anchorpoint)
@@ -519,36 +530,36 @@ lnlib = {
         xoffset = (xoffset or 0)
         yoffset = (yoffset or 0)
       end
-      local w = tenv.line.height
-      local h = tenv.line.chars[1].width -- breaks if line starts with non-fullwidth char lol
+      local w = tenv.orgline.height
+      local h = tenv.orgline.chars[1].width -- breaks if line starts with non-fullwidth char lol
       local x,y
       
-      local lineal = tenv.line.styleref.align
+      local lineal = tenv.orgline.styleref.align
       if line_kara_mode and tenv.line.smart_pos_flag then
         return ""
       else
         if lineal % 3 == 1 then
-          x = tenv.line.left + h/2
+          x = tenv.orgline.left + h/2
         elseif lineal % 3 == 0 then
-          x = tenv.line.right - h/2
+          x = tenv.orgline.right - h/2
         else
-          x = tenv.line.center
+          x = tenv.orgline.center
         end
         if line_kara_mode then
           if lineal < 4 then
-            y = tenv.line.bottom - tenv.line.width/2
+            y = tenv.orgline.bottom - tenv.orgline.width/2
           elseif lineal > 6 then
-            y = tenv.line.top + tenv.line.width/2
+            y = tenv.orgline.top + tenv.orgline.width/2
           else
-            y = tenv.line.middle
+            y = tenv.orgline.middle
           end
         else
           if lineal < 4 then
-            y = tenv.line.bottom - (tenv.line.width-tenv.syl.center) - (w-h)/2
+            y = tenv.orgline.bottom - (tenv.orgline.width-kunit().center) - (w-h)/2
           elseif lineal > 6 then
-            y = tenv.line.top + tenv.syl.center + (w-h)/2
+            y = tenv.orgline.top + kunit().center + (w-h)/2
           else
-            y = tenv.line.middle + tenv.syl.center - tenv.line.width/2
+            y = tenv.orgline.middle + kunit().center - tenv.orgline.width/2
           end
         end
         tenv.line.smart_pos_flag = true
@@ -556,8 +567,8 @@ lnlib = {
       
       if x ~= nil and y~= nil then
         local fontchange = ""
-        if tenv.line.styleref.fontname:sub(1,1) ~= "@" then
-          fontchange = "\\fn@" .. tenv.line.styleref.fontname
+        if tenv.orgline.styleref.fontname:sub(1,1) ~= "@" then
+          fontchange = "\\fn@" .. tenv.orgline.styleref.fontname
         end
         return ("%s\\frz-90\\an%d\\pos(%.2f,%.2f)"):format(fontchange, alignment,x + xoffset,y + yoffset);
       else
@@ -567,8 +578,8 @@ lnlib = {
     move = function(xoff0, yoff0, xoff1, yoff1, time0, time1, alignment, anchorpoint, line_kara_mode)
       if type(xoff0) == "table" then
         local tab = xoff0
-        alignment = tab.alignment or tenv.line.styleref.align or 5
-        anchorpoint = tab.anchorpoint or alignment or tenv.line.styleref.align or 5
+        alignment = tab.alignment or tenv.orgline.styleref.align or 5
+        anchorpoint = tab.anchorpoint or alignment or tenv.orgline.styleref.align or 5
         xoff0 = tab.offset_x_start or tab.x0 or 0
         yoff0 = tab.offset_x_start or tab.y0 or 0
         xoff1 = tab.offset_x_end or tab.x1 or 0
@@ -577,8 +588,8 @@ lnlib = {
         time1 = tab.time_end or tab.t1 or nil
         line_kara_mode = tab.line_kara_mode
       else
-        alignment = alignment or tenv.line.styleref.align or 5
-        anchorpoint = anchorpoint or tenv.line.styleref.align or 5
+        alignment = alignment or tenv.orgline.styleref.align or 5
+        anchorpoint = anchorpoint or tenv.orgline.styleref.align or 5
         xoff1 = xoff1 or 0
         yoff1 = yoff1 or 0
       end
@@ -588,7 +599,7 @@ lnlib = {
           x,y = an2point(anchorpoint)
           tenv.line.smart_pos_flag = true
         end
-      elseif tenv.syl == nil then
+      elseif kunit() == nil then
         x,y = an2point(anchorpoint)
       else
         x,y = an2point(anchorpoint)
