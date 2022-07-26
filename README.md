@@ -189,7 +189,7 @@ If a table is passed as the first argument, all arguments will be read from ther
 
 ---
 
-    ln.tag.move(xoff0, yoff0, xoff1, yoff1, time0, time1, alignment, anchorpoint, line_kara_mode) -> string
+    ln.tag.move(xoff0, yoff0, xoff1, yoff1, time0, time1, alignment, anchorpoint, lsyl_mode) -> string
     ln.tag.move(table) -> string
 	
 Creates \an and \move tags. 
@@ -200,7 +200,7 @@ Creates \an and \move tags.
 `time0` and `time1` are the times put in the \move tag and work as you'd expect. Leaving these arguments out will also leave them out of the tag, causing the move to occur over the whole duration of the line.\
 `alignment` is what this sets the \an tag to. Defaults to the alignment defined in the line's style.\
 `anchorpoint` defines the alignment value used for calculating the base position. Defaults to the same as the `alignment` argument, or the alignment defined in the line's style. For example, `anchorpoint=3` will calculate the bottom right of the text as the base position.\
-`line_kara_mode` should be true when using this with a *lsyl* (or similar) template, to tell the function to only generate one move tag at the start of the line.
+`lsyl_mode` should be true when using this with a *lsyl* (or similar) template, to tell the function to only generate one move tag at the start of the line.
 
 If a table is passed as the first argument, all arguments will be read from there. The table should have keys named after the arguments here. These arguments have shorter or more easily understandable aliases that will also work:\
 `xoff0`: `x_start`, `x0`\

@@ -575,7 +575,7 @@ lnlib = {
         return "";
       end
     end,
-    move = function(xoff0, yoff0, xoff1, yoff1, time0, time1, alignment, anchorpoint, line_kara_mode)
+    move = function(xoff0, yoff0, xoff1, yoff1, time0, time1, alignment, anchorpoint, lsyl_mode)
       if type(xoff0) == "table" then
         local tab = xoff0
         alignment = tab.alignment or tenv.orgline.styleref.align or 5
@@ -586,7 +586,7 @@ lnlib = {
         yoff1 = tab.offset_x_end or tab.y1 or 0
         time0 = tab.time_start or tab.t0 or nil
         time1 = tab.time_end or tab.t1 or nil
-        line_kara_mode = tab.line_kara_mode
+        lsyl_mode = tab.lsyl_mode
       else
         alignment = alignment or tenv.orgline.styleref.align or 5
         anchorpoint = anchorpoint or tenv.orgline.styleref.align or 5
@@ -594,7 +594,7 @@ lnlib = {
         yoff1 = yoff1 or 0
       end
       local x,y
-      if line_kara_mode then
+      if lsyl_mode then
         if not tenv.line.smart_pos_flag then
           x,y = an2point(anchorpoint)
           tenv.line.smart_pos_flag = true
