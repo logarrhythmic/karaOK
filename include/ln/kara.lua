@@ -1111,6 +1111,23 @@ lnlib = {
       local x0, y0, x1, y1, x2, y2 = -side_length/2, -midh, side_length/2, -midh, 0, h-midh
       return formatstr:format(x0, y0, x1, y1, x2, y2, x0, y0)
     end,
+    polygon = function(sides, radius) -- regular n-agon
+      if sides < 3 then
+        -- polygon with less than 3 sides doesn't make sense
+        return nil
+      end
+      radius = radius or 1
+
+      -- initialize first vertex
+      local out = string.format("m %.2f 0 l", radius)
+      local inner = 2 * math.pi / sides
+      for i = 1, sides - 1 do
+        local px = math.cos(i*inner) * radius
+        local py = math.sin(i*inner) * radius
+        out = out .. string.format(" %.2f %.2f", px, py)
+      end
+      return out
+    end,
     gear = function(r1, r2, r3, n, t, tt1, tt2) -- inner radius, middle radius, outer radius, number of teeth, thickness of teeth at base (0-1 for 0-100% of max), middle (0-1 for 0-100% of max), and top land (0-1 for 0-100% of t)
       r1 = lnlib.math.round(r1)
       r2 = lnlib.math.round(r2)
