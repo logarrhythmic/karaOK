@@ -1065,6 +1065,8 @@ lnlib = {
       return formatstr:format(x0, y0, x1, y1, x2, y2, x3, y3, x0, y0)
     end,
     circle = function(radius, segments) -- makes a properly centered approximation of a circle of r=radius (3 segments is particularly useful, as it looks almost perfect and is harder to calculate than 4 without letting this code do the math)
+      local dir = 1
+      if segments < 0 then segments = -segments; dir = -1 end
       segments = lnlib.math.round(math.max(2, segments or 3))
       radius = lnlib.math.round(radius)
       local blen = (4/3)*math.tan(math.pi/(2*segments))
@@ -1073,7 +1075,7 @@ lnlib = {
       local x0, y0 = math.sin(phi), -math.cos(phi)
       local strTab = {("m %d %d"):format(lnlib.math.round(x0*radius)+radius, lnlib.math.round(y0*radius)+radius)} -- the drawing is contained down and right of 0,0 as usual, and rounding is done before moving to retain symmetry
       local bx0, by0, x1, y1, bx1, by1
-      for i=0,segments do
+      for i=0, dir*(segments-1), dir do
         bx0, by0 = x0 + math.cos(phi)*blen, y0 + math.sin(phi)*blen  -- d/dx sin = cos, d/dx -cos = sin
         phi = i*2*math.pi/segments
         x1, y1 = math.sin(phi), -math.cos(phi)
