@@ -997,11 +997,8 @@ lnlib = {
     sgn = function(n)
       return n<0 and -1 or 1
     end,
-    round_fast = function(num)
-        if math.abs(num) > 2^52 then
-          return num
-        end
-        return num < 0 and num - 2^52 + 2^52 or num + 2^52 - 2^52
+    round_fast = function(num) -- stolen from https://stackoverflow.com/a/58411671
+      return num + (2^52 + 2^51) - (2^52 + 2^51)
     end,
     round = function(num, idp)
       local bracket = 1 / 10^(idp or 0)
