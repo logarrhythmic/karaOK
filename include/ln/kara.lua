@@ -1076,7 +1076,7 @@ lnlib = {
       if segments < 0 then segments = -segments; dir = -1 end
       segments = lnlib.math.round(math.max(2, segments))
       radius = lnlib.math.round(radius)
-      local blen = (4/3)*math.tan(math.pi/(2*segments))
+      local blen = dir * (4/3)*math.tan(math.pi/(2*segments))
       local minX, minY, maxX, maxY = -1, -1, 1, 1
       local phi = 0
       local x0, y0 = math.sin(phi), -math.cos(phi)
