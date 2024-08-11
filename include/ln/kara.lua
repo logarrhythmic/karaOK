@@ -997,9 +997,15 @@ lnlib = {
     sgn = function(n)
       return n<0 and -1 or 1
     end,
+    round_fast = function(num)
+        if math.abs(num) > 2^52 then
+          return num
+        end
+        return num < 0 and num - 2^52 + 2^52 or num + 2^52 - 2^52
+    end,
     round = function(num, idp)
       local bracket = 1 / 10^(idp or 0)
-      return math.floor(num/bracket + lnlib.math.sgn(num) * 0.5) * bracket
+      return lnlib.math.round_fast(num/bracket) * bracket
     end,
     random = function(...)
       local ret
