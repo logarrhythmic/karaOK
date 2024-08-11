@@ -999,7 +999,7 @@ lnlib = {
     end,
     round = function(num, idp)
       local bracket = 1 / 10^(idp or 0)
-      return math.floor(num/bracket + lnlib.math.sgn(num) * 0.5) * bracket
+      return math.floor(num/bracket + 0.5) * bracket
     end,
     random = function(...)
       local ret
