@@ -88,6 +88,7 @@ Because I thought `maxloop(0)` should work. Setting the maxloop variable lower t
 "added k_retime function that acts like retime but moves karaoke timings as needed (you should only run this once per line)"
 I'll be honest, I don't remember what I added this for or how it works.
 
+---
 
 # Part B: the karaoke utility library, karaOK
 Disclaimer: you probably want to use this only as an example of how to start making your own external libraries for use with the Aegisub karaoke templater, but do whatever you feel like. There's some useful stuff here if you can make any sense of my garbage code
@@ -105,87 +106,78 @@ The variable ```ln``` will now be a table that contains the following functions:
 
 Note: parts of this will be out of date or outright incorrect. I'm no longer using any of this actively, so tell me if you need something fixed.
 
----
+### root namespace
 
+#### `init(...)`
     ln.init(tenv_in)
 
 Takes the ```tenv``` variable from the karaoke templater, to allow the library to directly read the current line and syllable and other such things. Also sets shorthands for a few functions. For example, instead of using ```!ln.syltime(0.3)!``` you can use ```!st(0.3)!```. **This should be called in a `code once` line right after `ln = _G.require "ln.kara"` to ensure that functions work properly.** 
 
----
-
+#### `set(...)`
     shorthand only: set(var, val)
     
 Sets variable ```var``` in the templater environment to value ```val```.
 
----
-
+#### `randomize(...) <= tenv.rset(...)`
     ln.randomize(variable_name, min, max, override)
     shorthand: rset(variable_name, min, max, override)
     
 If a variable by ```variable_name``` doesn't already exist in the environment, or if ```override``` is true, sets variable ```variable_name``` to ```math.random(min, max)```.
 
----
-
+#### `chari() <= tenv.ci()`
     ln.chari() -> number
     shorthand: ci() -> number
 
 Returns the current character index, works on char templates too.
 
----
-
+#### `syltime(...) <= tenv.st(...)`
     ln.syltime(p) -> number
     shorthand: st(p) -> number
 
 Returns ```syl.start_time + syl.duration*p```, or ```syl.start_time``` if ```p``` is not provided.
 
----
-
+#### `syldur(...) <= tenv.sd(...)`
     ln.syldur(p) -> number
     shorthand: sd(p) -> number
 
 Returns ```syl.duration*p```, or ```syl.duration``` if ```p``` is not provided.
 
-### line table - info about the line and tags within it
+### `line` namespace
+##### (info about the line and tags within it)
 
+#### `tag(...)`
     ln.line.tag(list) -> string
  
 Returns a string containing the first match found in the currently processed line for each of the tags listed in the list given as an argument. You can also call this with just a string defining one tag.
 
----
-
+#### `tags(...)`
     ln.line.tags(list) -> string
  
 Same as above, but returns all matches for each tag. Useful for transforms.
-
----
 
     ln.line.tags(list, true) -> table
  
 Same as above, but returns a table with each match at a separate index.
 
----
-
+#### `c(...) <= tenv.gc(...)`
     ln.line.c(n) -> string
     shorthand: gc(n) -> string
  
 Returns a string containing either the color from the matching color tag in the line, or if that's not possible, the style's default color. ```n``` can be 1, 2, 3 or 4. Calling the function without an argument returns color 1.
 
----
-
+#### `a(...) <= tenv.ga(...)`
     ln.line.a(n) -> string
     shorthand: ga(n) -> string
  
 Same as ```c(n)```, but for alpha.
 
----
-
+#### `style_c(...) / style_a(...)`
     ln.line.style_c(n) -> string
     ln.line.style_a(n) -> string
  
 Same as the two above functions, but these just always give the style's default color.
 
----
-
+#### `buffers(...)`
     ln.line.buffers(startmin_k, endmin_k, startmin_fad, endmin_fad) -> number, number
     ln.line.buffers(startmin, endmin) -> number, number
  
@@ -195,16 +187,17 @@ Returns durations for fade-in and fade-out effects. There are 2 ways this functi
 
 If only 2 parameters are provided, they will be used in both of the above cases.
 
----
-
+#### `len_stripped() / len() / len_raw()`
     ln.line.len_stripped() -> number
     ln.line.len() -> number
     ln.line.len_raw() -> number
 	
 Each returns the unicode character length of ```line.text_stripped```, ```line.text``` and ```line.text_raw``` respectively. Necessary if you have kanji in your kara.
 
-### tag table - tag generation and handling
+### `tag` namespace 
+##### (tag generation and handling)
 
+#### `pos(...)`
     ln.tag.pos(alignment, anchorpoint, xoffset, yoffset, line_kara_mode) -> string
     ln.tag.pos(table) -> string
 
@@ -221,8 +214,7 @@ If a table is passed as the first argument, all arguments will be read from ther
 `xoffset`: `offset_x`\
 `yoffset`: `offset_y`
 
----
-
+#### `move(...)`
     ln.tag.move(xoff0, yoff0, xoff1, yoff1, time0, time1, alignment, anchorpoint, lsyl_mode) -> string
     ln.tag.move(table) -> string
 	
@@ -242,20 +234,17 @@ If a table is passed as the first argument, all arguments will be read from ther
 `xoff1`: `x_end`, `x1`\
 `yoff1`: `y_end`, `y1`
 
----
-	
+#### `t(...)`
 	ln.tag.t(a1, a2, a3, a4) -> string
 	
 Creates a transform tag, works exactly like simply writing out the transform tag in the templater like ```\t(!a1!,!a2!,!a3!,!a4!)``` - except it rounds the times to a sane precision. Putting in fewer variables works the same way as a transform tag too. Useful because you don't have to write as many exclamation points.
 
----
-
+#### `parse_transform(...)`
 	ln.tag.parse_transform(tag) -> table
 	
 Returns a table with the start time `t0`, end time `t1`, acceleration `a` and transformed tags `tags` of a transform tag.
 
----
-
+#### `mod_transform(...)`
 	ln.tag.mod_transform(tag, starttime_mod, endtime_mod, accel_mod, tags_mod) -> string
 	
 Makes changes to a transform tag and returns it. 
@@ -266,19 +255,19 @@ tag_mod works like this:
 	"<symbol><string>"
 ```symbol``` can once again be -, + or =. + adds ```string``` to the tag string, - deletes all instances of ```string``` from the tag string, and = or no prefix sets the tag string to ```string```.
 
-### wave table - pushing the limits of ASS
+### `wave` namespace 
+##### pushing the limits of ASS
 
 Arguably the most advanced part of the library so far. Useful for shaking text, "floating" text and who knows what else. Can make pretty convincing sine waves without going completely frame-by-frame.
 
-
+#### `new()` -> *waveObj*
 	waveX = ln.wave.new()
 
 Creates a new table to store the wave function you're creating.
 
 If given parameters, immediately calls ```addWave``` with them.
 
----
-
+#### *waveObj*`.addWave(...)`
 	waveX.addWave(waveform, wavelength, amplitude, phase)
 
 Adds an elementary waveform or white noise to the wave function. 
@@ -291,42 +280,36 @@ Adds an elementary waveform or white noise to the wave function.
 
 ```phase``` is the phase shift, in periods, applied to the waveform. Negative values will delay the waveform, positive values will do the opposite. For noise, this value instead seeds the random number generator. Defaults to 0 if left out.
 
----
-
+#### *waveObj*`.addFunction(...)`
 	waveX.addFunction(func)
 	
 Adds a user defined function to the wave function. ```func``` must be a function that takes a single value, time.
 
 Example: ```!waveX.addFunction(function(t) return _G.math.random()*2-1 end)!``` will work as noise. ```!waveX.addFunction(function(t) return t*t end)!``` will make an upwards-opening parabola.
 
----
-
+#### *waveObj*`.addConstant(...)`
 	waveX.addConstant(c)
 
 Adds a constant value to the wave function. Shorthand for ```waveX.addFunction(function() return c end)```, convenient for centering alpha or colors in the 0..255 range.
 
----
-
+#### *waveObj*`.clear()`
 	waveX.clear()
 
 Removes all previously registered waveforms/functions from the wave table.
 
----
-
+#### *waveObj*`.clear()`
 	waveX.setWave(...)
 	waveX.setFunction(func)
 	waveX.setConstant(c)
 
 Clears the wave table, then adds the corresponding component.
 
----
-
+#### *waveObj*`.getValue(...)`
 	waveX.getValue(time) -> number
 	
 Gets the value of the wave function at ```time```.
 
----
-
+#### *waveObj*`.transform(...)`
 	ln.wave.transform(wave, tags, starttime, endtime, delay, framestep, jumpToStartingPosition, dutyCycle) -> string
 	
 Creates a set of transforms according to a wave function.
@@ -359,22 +342,22 @@ Example of use (run on an \an5 line):
 
 Try out lower ```framestep``` values on the second template line and see what happens. High values seem to make the shadow jump around on the circle, and even 3 still jumps around a tiny bit when used for going in circles like this, but 2 starts to look really convincing.
 
-### color table - fancy fairy magic
+### `color` namespace 
+##### (fancy fairy magic)
 
+#### `byRGB(...) <= tenv.rgb(...)`
     ln.color.byRGB(r,g,b) -> string
     shorthand: rgb(r,g,b) -> string
 
 Creates an ASS color value string for override tags. r, g and b are red, green and blue values between 0 and 255.
 
----
-
+#### `byHSL(...) <= tenv.hsl(...)`
     ln.color.byHSL(h,s,l) -> string
     shorthand: hsl(h,s,l) -> string
 
 Creates an ASS color value string for override tags. h, s and l are hue, saturation and lightness values between 0 and 255. The values are in this range to be consistent with Aegisub's color picker.
 
----
-
+#### `lumaHSL(...) <= tenv.hsy(...)`
     ln.color.lumaHSL(h,s,y) -> string
     shorthand: hsy(h,s,y) -> string
 
@@ -382,8 +365,7 @@ Creates an ASS color value string for override tags. h, s and y are hue, saturat
 
 This differs from the normal HSL function by preserving perceived brightness of the color between different hues. The human eye sees green as much brighter than blue, for example. TV.709 values are used.
 
----
-
+#### `rgb.get(...) / rgb.add(...) / hsl.get(...) / hsl.add(...)`
     ln.color.rgb.get(string) -> number, number, number
     ln.color.rgb.add(string,r,g,b) -> number, number, number
     ln.color.hsl.get(string) -> number, number, number
@@ -391,85 +373,75 @@ This differs from the normal HSL function by preserving perceived brightness of 
 	
 These return either the three RGB or HSL values, and the add functions add the values you give to the numbers that are returned. HSL handles hue correctly, all values are kept within the 0-255 limits.
 
-### math table
+### `math` namespace
 
+#### `clamp(...) <= tenv.clamp(...)`
 	ln.math.clamp(value, min, max) -> number
 	shorthand: clamp(value, min, max) -> number
 
 Returns min if value is below min, max if value is over max, or value otherwise. Useful for keeping a value within bounds.
 
----
-
+#### `modloop(...)`
 	ln.math.modloop(value, min, max) -> number
 
 Returns a value that has been moved to the specified range by substracting or adding the range's width to it enough times - for example 5.6,0,1 would return 5.6-5x1=0.6, and 7,40,52 would return 7+3x12=43. As a more practical example, modloop(789,-180,180) will get you 69 which can be used to keep angles in a nice range.
 
----
-
+#### `modbounce(...)`
 	ln.math.modbounce(value, min, max) -> number
 
-Works like modloop, but every second pass over the range is mirrored so that if value is allowed to rise indefinitely, the curve for that would trace a triangle wave pattern. I used this for limiting hues in gradients.
+Works like modloop, but every second pass over the range is mirrored so that if `value` is allowed to rise indefinitely, the output for that would trace a triangle wave pattern. I used this for limiting hues in gradients.
 
----
-
+#### `log(...)`
 	ln.math.log(base, n) -> number
 
-Calculates ```base```-based logarithm for ```n```.
+Calculates `base`-based logarithm for `n`.
 
----
-
+#### `sgn(...)`
 	ln.math.sgn(n) -> number
 
-Returns -1 for negative numbers ```n``` and 1 otherwise.
+Returns -1 for negative inputs `n` and 1 otherwise.
 
----
-
+#### Added shorthands `rnd` and `fl`
 	Additional shorthands:
 	rnd(...) for math.random(...)
 	fl(n) for math.floor(n)
 
-### shapes table
+### `shapes` namespace
+##### Functions to generate various shapes, as well as fetch some specific preset shapes, as strings.
 
-Functions to generate various shapes, as well as some specific shapes as strings.
-
+#### `shift(...)`
     ln.shapes.shift(shape, x, y) -> string
 
-Shifts the given shape `x` pixels right and `y` pixels down.
+Shifts the given drawing `x` pixels right and `y` pixels down.
 
----
-
+#### `rectangle(...)`
     ln.shapes.rectangle(width, height) -> string
 
 Makes a rectangle with the given width and height.
 
----
-
+#### `roundedRectangle(...)`
     ln.shapes.roundedRectangle(width, height, radius) -> string
 
 As above, but with rounded corners of radius `radius`.
 
----
-
+#### `circle(...)`
     ln.shapes.circle(radius, segments) -> string
 
 Makes a properly centered approximation of a circle of radius `radius`. 
 3 segments is particularly useful, as it looks almost perfect and is harder to calculate than 4 without letting this code do the math.
 
----
-
+#### `triangle(...)`
     ln.shapes.triangle(side) -> string
 
 Makes an equilateral triangle with given side length. Note: The shape is centered on the center of the triangle's bounding box, not the geometric center.
 
----
-
+#### `gear(...)`
     ln.shapes.gear(r1, r2, r3, n, t, tt1, tt2) -> string
 
 Makes a cogwheel shape. `r1`, `r2` and `r3` are the radii that define the size of the central circle and the length and shape of the teeth. `n` is the number of teeth. `t` is the ratio of the available space that each tooth occupies on the central circle. `tt1` and `tt2` control the beveling on the teeth. See the image for a better idea of what's happening. 
 ![image](https://user-images.githubusercontent.com/1952758/128567717-77da0917-33ae-4026-957d-ffe526261f67.png)
 
----
-
+#### preset shapes
     ln.shapes.star
     ln.shapes.heart
     ln.shapes.twinkle1
