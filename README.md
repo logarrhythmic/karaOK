@@ -395,11 +395,11 @@ Returns -1 for negative inputs `n` and 1 otherwise.
         ln.math.round(num, idp) -> number 
 Rounds `num` to `idp` decimal points of precision, or to integer precision if `idp` is omitted (or 0).
 
-### `random(...) <= tenv.rnd(...)`
+#### `random(...) <= tenv.rnd(...)`
 	ln.math.random() -> number
 	ln.math.random(max) -> number
 	ln.math.random(min,max) -> number
-Alternate random function that works like the lua math.random, except always returns a float in the given range (inclusive).
+Alternate random function that takes inputs like the Lua standard math.random(), but always returns a float in the given range (inclusive).
 
 If no arguments are provided, the range is 0 to 1.
 
@@ -409,11 +409,11 @@ If two arguments `min` and `max` are provided, the range is `min` to `max`.
 
 The output is rounded to 4 decimals of precision.
 
-### `lerp(...)`
+#### `lerp(...)`
 	ln.math.lerp(t, a, b)
 Linearly interpolates from `a` to `b` as `t` goes from 0 to 1. Works with color and alpha values (given as override tag compatible strings) too.
 
-### `xerp(...)`
+#### `xerp(...)`
 	ln.math.xerp(t, a, b, accel)
 Interpolates with acceleration, should match the behaviour of \t tags.
 
