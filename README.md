@@ -13,6 +13,13 @@
 2. [KFX Library](#part-b-the-karaoke-utility-library-karaok)
    	- [How to use](#usage)
    	- [Functions](#functions)
+		- [Basic functions](#root-namespace)
+		- [Line information](#line-namespace)
+		- [Tag generation and manipulation](#tag-namespace)
+		- [Wave functions that can be mapped to transforms](#wave-namespace)
+		- [Color generation and manipulation](#color-namespace)
+		- [Extra math](#math-namespace)
+		- [Vector shape generation](#shapes-namespace)
 
 # Part A: the modified templater 
 The autoload folder in this repository contains a modified karatemplater script that is mostly compatible with the normal one, with a few caveats.
