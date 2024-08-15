@@ -399,6 +399,7 @@ Rounds `num` to `idp` decimal points of precision, or to integer precision if `i
 	ln.math.random() -> number
 	ln.math.random(max) -> number
 	ln.math.random(min,max) -> number
+ 	shorthand: rnd(...) -> number
 Alternate random function that takes inputs like the Lua standard math.random(), but always returns a float in the given range (inclusive).
 
 If no arguments are provided, the range is 0 to 1.
