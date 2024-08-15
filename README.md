@@ -235,11 +235,11 @@ Creates \an and \move tags.
 `anchorpoint` defines the alignment value used for calculating the base position. Defaults to the same as the `alignment` argument, or the alignment defined in the line's style. For example, `anchorpoint=3` will calculate the bottom right of the text as the base position.\
 `lsyl_mode` should be true when using this with a *lsyl* (or similar) template, to tell the function to only generate one move tag at the start of the line.
 
-If a table is passed as the first argument, all arguments will be read from there. The table should have keys named after the arguments here. These arguments have shorter or more easily understandable aliases that will also work:\
-`xoff0`: `x_start`, `x0`\
-`yoff0`: `y_start`, `y0`\
-`xoff1`: `x_end`, `x1`\
-`yoff1`: `y_end`, `y1`
+If a table is passed as the first argument, all arguments will be read from there. (Like named argument in e.g. Python.) The table should have keys named after the arguments here. These arguments have shorter or more easily understandable aliases that will also work:\
+`xoff0`: `offset_x_start`, `x0`\
+`yoff0`: `offset_y_start`, `y0`\
+`xoff1`: `offset_x_end`, `x1`\
+`yoff1`: `offset_y_end`, `y1`
 
 #### `t(...)`
 	ln.tag.t(a1, a2, a3, a4) -> string
