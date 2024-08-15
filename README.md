@@ -92,8 +92,7 @@ Furigana is only used in a subset of kanji-including kfx, so the styles are just
 Because I thought `maxloop(0)` should work. Setting the maxloop variable lower than the next `j` will also prevent the next line from generating.
 
 ## k_retime
-"added k_retime function that acts like retime but moves karaoke timings as needed (you should only run this once per line)"
-I'll be honest, I don't remember what I added this for or how it works.
+Does the same thing as the normal retime function, but also adjusts the current syllable timing. Only works and makes sense with `syl`, `char`, and `furichar` templates.
 
 ---
 
