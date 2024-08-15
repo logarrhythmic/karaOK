@@ -130,12 +130,6 @@ Sets variable ```var``` in the templater environment to value ```val```.
     
 If a variable by ```variable_name``` doesn't already exist in the environment, or if ```override``` is true, sets variable ```variable_name``` to ```math.random(min, max)```.
 
-#### `chari() <= tenv.ci()`
-    ln.chari() -> number
-    shorthand: ci() -> number
-
-Returns the current character index, works on char templates too.
-
 #### `syltime(...) <= tenv.st(...)`
     ln.syltime(p) -> number
     shorthand: st(p) -> number
@@ -193,12 +187,11 @@ Returns durations for fade-in and fade-out effects. There are 2 ways this functi
 
 If only 2 parameters are provided, they will be used in both of the above cases.
 
-#### `len_stripped() / len() / len_raw()`
+#### `len_stripped() / len()`
     ln.line.len_stripped() -> number
     ln.line.len() -> number
-    ln.line.len_raw() -> number
 	
-Each returns the unicode character length of ```line.text_stripped```, ```line.text``` and ```line.text_raw``` respectively. Necessary if you have kanji in your kara.
+Each returns the unicode character length of ```line.text_stripped``` and ```line.text``` respectively. Necessary if you have kanji in your kara.
 
 ### `tag` namespace 
 ##### (tag generation and handling)
@@ -354,19 +347,16 @@ Try out lower ```framestep``` values on the second template line and see what ha
 #### `byRGB(...) <= tenv.rgb(...)`
     ln.color.byRGB(r,g,b) -> string
     shorthand: rgb(r,g,b) -> string
-
 Creates an ASS color value string for override tags. r, g and b are red, green and blue values between 0 and 255.
 
 #### `byHSL(...) <= tenv.hsl(...)`
     ln.color.byHSL(h,s,l) -> string
     shorthand: hsl(h,s,l) -> string
-
 Creates an ASS color value string for override tags. h, s and l are hue, saturation and lightness values between 0 and 255. The values are in this range to be consistent with Aegisub's color picker.
 
 #### `lumaHSL(...) <= tenv.hsy(...)`
     ln.color.lumaHSL(h,s,y) -> string
     shorthand: hsy(h,s,y) -> string
-
 Creates an ASS color value string for override tags. h, s and y are hue, saturation and luma values between 0 and 255. The values are in this range to be consistent with Aegisub's color picker.
 
 This differs from the normal HSL function by preserving perceived brightness of the color between different hues. The human eye sees green as much brighter than blue, for example. TV.709 values are used.
@@ -376,40 +366,60 @@ This differs from the normal HSL function by preserving perceived brightness of 
     ln.color.rgb.add(string,r,g,b) -> number, number, number
     ln.color.hsl.get(string) -> number, number, number
     ln.color.hsl.add(string,h,s,l) -> number, number, number
-	
 These return either the three RGB or HSL values, and the add functions add the values you give to the numbers that are returned. HSL handles hue correctly, all values are kept within the 0-255 limits.
 
 ### `math` namespace
-
 #### `clamp(...) <= tenv.clamp(...)`
 	ln.math.clamp(value, min, max) -> number
 	shorthand: clamp(value, min, max) -> number
-
 Returns min if value is below min, max if value is over max, or value otherwise. Useful for keeping a value within bounds.
 
 #### `modloop(...)`
 	ln.math.modloop(value, min, max) -> number
-
 Returns a value that has been moved to the specified range by substracting or adding the range's width to it enough times - for example 5.6,0,1 would return 5.6-5x1=0.6, and 7,40,52 would return 7+3x12=43. As a more practical example, modloop(789,-180,180) will get you 69 which can be used to keep angles in a nice range.
 
 #### `modbounce(...)`
 	ln.math.modbounce(value, min, max) -> number
-
 Works like modloop, but every second pass over the range is mirrored so that if `value` is allowed to rise indefinitely, the output for that would trace a triangle wave pattern. I used this for limiting hues in gradients.
 
 #### `log(...)`
 	ln.math.log(base, n) -> number
-
 Calculates `base`-based logarithm for `n`.
 
 #### `sgn(...)`
 	ln.math.sgn(n) -> number
-
 Returns -1 for negative inputs `n` and 1 otherwise.
 
-#### Added shorthands `rnd` and `fl`
+#### `round(...)`
+        ln.math.round(num) -> number 
+        ln.math.round(num, idp) -> number 
+Rounds `num` to `idp` decimal points of precision, or to integer precision if `idp` is omitted (or 0).
+
+### `random(...) <= tenv.rnd(...)`
+	ln.math.random() -> number
+	ln.math.random(max) -> number
+	ln.math.random(min,max) -> number
+Alternate random function that works like the lua math.random, except always returns a float in the given range (inclusive).
+
+If no arguments are provided, the range is 0 to 1.
+
+If one argument `max` is provided, the range is 0 to `max`.
+
+If two arguments `min` and `max` are provided, the range is `min` to `max`.
+
+The output is rounded to 4 decimals of precision.
+
+### `lerp(...)`
+	ln.math.lerp(t, a, b)
+Linearly interpolates from `a` to `b` as `t` goes from 0 to 1. Works with color and alpha values (given as override tag compatible strings) too.
+
+### `xerp(...)`
+	ln.math.xerp(t, a, b, accel)
+Interpolates with acceleration, should match the behaviour of \t tags.
+
+    
+#### Added shorthands
 	Additional shorthands:
-	rnd(...) for math.random(...)
 	fl(n) for math.floor(n)
 
 ### `shapes` namespace
