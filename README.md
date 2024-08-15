@@ -1,4 +1,15 @@
-1. [Templater Mod](#part-a-the-modified-templater)
+
+1. [KFX Library](#part-b-the-karaoke-utility-library-karaok)
+   	- [How to use](#usage)
+   	- [Functions](#functions)
+		- [Basic functions](#root-namespace)
+		- [Line information](#line-namespace)
+		- [Tag generation and manipulation](#tag-namespace)
+		- [Wave functions that can be mapped to transforms](#wave-namespace)
+		- [Color generation and manipulation](#color-namespace)
+		- [Extra math](#math-namespace)
+		- [Vector shape generation](#shapes-namespace)
+2. [Templater Mod (feature frozen)](#part-a-the-modified-templater)
 	- [Keyword changes](#keyword-changes-most-important-partially-breaking)
 	- [Different splitting of the line](#line-splitting)
 	- [per-word and per-char code sections](#code-wordchar)
@@ -10,95 +21,8 @@
 	- [inline dollar variables get one decimal of extra precision](#sub-pixel-inline-variables)
 	- [menu entry to run without creating furigana styles](#generate-without-furigana)
 	- [maxloop(0) now makes the template run 0 times](#maxloop-power-boost)
-2. [KFX Library](#part-b-the-karaoke-utility-library-karaok)
-   	- [How to use](#usage)
-   	- [Functions](#functions)
-		- [Basic functions](#root-namespace)
-		- [Line information](#line-namespace)
-		- [Tag generation and manipulation](#tag-namespace)
-		- [Wave functions that can be mapped to transforms](#wave-namespace)
-		- [Color generation and manipulation](#color-namespace)
-		- [Extra math](#math-namespace)
-		- [Vector shape generation](#shapes-namespace)
 
-# Part A: the modified templater 
-The autoload folder in this repository contains a modified karatemplater script that is mostly compatible with the normal one, with a few caveats.
-
-## Keyword changes (most important, partially breaking)
-### `pre-line` is just `line`, `line` is `lsyl`, and there are four new keywords: `lword`, `lchar`, `word`, and `furichar`
-I just thought this made sense. Naming the two new keywords would also have been difficult without this change. The new behaviors are as follows:
-
-#### `pre-line`
-No longer a valid keyword.
-#### `line`
-One line is output. The template is run once per line, and the line text is appended at the end of the templater output. This is the old `pre-line` behavior.
-#### `lsyl`
-One line is output. The template is run once per syllable, and the templater output is placed before each syllable in the output line. This is the old `line` behavior.
-#### `lword`
-One line is output. The template is run once per word, and the templater output is placed before each word in the output line.
-#### `lchar`
-One line is output. The template is run once per character, and the templater output is placed before each character in the output line. 
-#### `word`
-Each word generates a separate output line. The template is run once per word, and the word text is appended at the end of the templater output.
-#### `furichar`
-Each furigana character generates a separate output line. The template is run once per furigana character, and the character is appended at the end of the templater output.
-
-## Line splitting
-It's now similar to NyuFX: there are `word`, `syll` and `char` objects.
-
-`syl` is the current smallest part of the line being worked on, like in the vanilla templater. This means it's either the current character, syllable or word. To get the current syllable, use `syll`.
-
-## code word/char
-You can use `word` and `char` with `code` lines.
-
-This will run a piece of code before each word or character.
-
-## style modifier keyword
-There is a `style` modifier that works similarly to `fxgroup`
-
-For example, a `template line all style romaji` will run on all lines with a style name containing `romaji`.
-
-## character index variable `ci`
-There is a character index variable `ci`.
-
-This gives the index number of the character at the start of the current unit being processed (word, syl, char).
-
-## expanded `tenv`
-The template execution environment has direct access to the `subtitles` object and additional basic Lua functions in addition to the `string` library, the `math` library, and `_G`.
-
-The `subtitles` object is what automation scripts use to access any given line in the ASS file. This can be used in kfx to get the next or previous line, for example. For specific documentation on the `subtitles` object, see the Aegisub manual. 
-
-Other inclusions: the `table` functions, `pairs`, `ipairs`, `tonumber`, `tostring` and `type`.
-
-## `notext` and `noblank` work with all template types
-In the vanilla templater, this is not the case. `notext` was a particularly annoying omission, since vector drawings for non-k-timed lines got the line text added to the end. This was harmless, but annoyed me, and could be an issue if a symbol font is used to do similar things.
-
-## `line.text` works properly now
-The vanilla templater blanks out `line.text` and uses it as a buffer to generate the output line. This means the value for `line.text` generated by karaskel was inaccessible at least in some versions of this modified templater, and possibly the vanilla templater. I recently (later note: as of when???) fixed that.
-
-## sub-pixel inline variables
-Inline variables (dollar variables) have sub-pixel precision
-
-They have one decimal. The normal behaviour of having only whole pixels made the position values unsuitable for positioning separated parts of a line.
-
-## generate without furigana
-There are two automation menu entries, one of which does not generate the furigana styles.
-
-Furigana is only used in a subset of kanji-including kfx, so the styles are just clutter for most people.
-
-## maxloop power boost
-`maxloop()` can now stop a line from being generated at all.
-
-Because I thought `maxloop(0)` should work. Setting the maxloop variable lower than the next `j` will also prevent the next line from generating.
-
-## k_retime
-Does the same thing as the normal retime function, but also adjusts the current syllable timing. Only works and makes sense with `syl`, `char`, and `furichar` templates.
-
----
-
-# Part B: the karaoke utility library, karaOK
-Disclaimer: you probably want to use this only as an example of how to start making your own external libraries for use with the Aegisub karaoke templater, but do whatever you feel like. There's some useful stuff here if you can make any sense of my garbage code
-
+# Part A: the karaoke utility library, karaOK
 ## Usage
 Intended usage is loading into the karatemplater with a `code once` line like
 
@@ -468,3 +392,80 @@ Makes a cogwheel shape. `r1`, `r2` and `r3` are the radii that define the size o
     ln.shapes.stolengleam
 
 Pre-defined shapes.
+
+---
+
+# Part B: the modified templater 
+The autoload folder in this repository contains a modified version of the vanilla karatemplater script that should be compatible with files that relied on that one, the only change required should be changing `template line` to `template lsyl` and `template pre-line` to `template line`.
+
+I'm probably not going to make any future additions to this templater, although fixes are always a good idea. I recommend using 0x's KaraTemplater available at https://github.com/The0x539/Aegisub-Scripts/, since that one is actively maintained.
+
+## Keyword changes (most important, partially breaking)
+### `pre-line` is just `line`, `line` is `lsyl`, and there are four new keywords: `lword`, `lchar`, `word`, and `furichar`
+I just thought this made sense. Naming the two new keywords would also have been difficult without this change. The new behaviors are as follows:
+
+#### `pre-line`
+No longer a valid keyword.
+#### `line`
+One line is output. The template is run once per line, and the line text is appended at the end of the templater output. This is the old `pre-line` behavior.
+#### `lsyl`
+One line is output. The template is run once per syllable, and the templater output is placed before each syllable in the output line. This is the old `line` behavior.
+#### `lword`
+One line is output. The template is run once per word, and the templater output is placed before each word in the output line.
+#### `lchar`
+One line is output. The template is run once per character, and the templater output is placed before each character in the output line. 
+#### `word`
+Each word generates a separate output line. The template is run once per word, and the word text is appended at the end of the templater output.
+#### `furichar`
+Each furigana character generates a separate output line. The template is run once per furigana character, and the character is appended at the end of the templater output.
+
+## Line splitting
+It's now similar to NyuFX: there are `word`, `syll` and `char` objects.
+
+`syl` is the current smallest part of the line being worked on, like in the vanilla templater. This means it's either the current character, syllable or word. To get the current syllable, use `syll`.
+
+## code word/char
+You can use `word` and `char` with `code` lines.
+
+This will run a piece of code before each word or character.
+
+## style modifier keyword
+There is a `style` modifier that works similarly to `fxgroup`
+
+For example, a `template line all style romaji` will run on all lines with a style name containing `romaji`.
+
+## character index variable `ci`
+There is a character index variable `ci`.
+
+This gives the index number of the character at the start of the current unit being processed (word, syl, char).
+
+## expanded `tenv`
+The template execution environment has direct access to the `subtitles` object and additional basic Lua functions in addition to the `string` library, the `math` library, and `_G`.
+
+The `subtitles` object is what automation scripts use to access any given line in the ASS file. This can be used in kfx to get the next or previous line, for example. For specific documentation on the `subtitles` object, see the Aegisub manual. 
+
+Other inclusions: the `table` functions, `pairs`, `ipairs`, `tonumber`, `tostring` and `type`.
+
+## `notext` and `noblank` work with all template types
+In the vanilla templater, this is not the case. `notext` was a particularly annoying omission, since vector drawings for non-k-timed lines got the line text added to the end. This was harmless, but annoyed me, and could be an issue if a symbol font is used to do similar things.
+
+## `line.text` works properly now
+The vanilla templater blanks out `line.text` and uses it as a buffer to generate the output line. This means the value for `line.text` generated by karaskel was inaccessible at least in some versions of this modified templater, and possibly the vanilla templater. I recently (later note: as of when???) fixed that.
+
+## sub-pixel inline variables
+Inline variables (dollar variables) have sub-pixel precision
+
+They have one decimal. The normal behaviour of having only whole pixels made the position values unsuitable for positioning separated parts of a line.
+
+## generate without furigana
+There are two automation menu entries, one of which does not generate the furigana styles.
+
+Furigana is only used in a subset of kanji-including kfx, so the styles are just clutter for most people.
+
+## maxloop power boost
+`maxloop()` can now stop a line from being generated at all.
+
+Because I thought `maxloop(0)` should work. Setting the maxloop variable lower than the next `j` will also prevent the next line from generating.
+
+## k_retime
+Does the same thing as the normal retime function, but also adjusts the current syllable timing. Only works and makes sense with `syl`, `char`, and `furichar` templates.
