@@ -338,7 +338,7 @@ lnlib = {
   --[[ chari = function() -- not relevant and also broken with kara templater mod, use syl.ci for all your needs
     local out = 0
     for i=1,kunit().i-1 do
-      out = out + unicode.len(tenv.line.kara[i].text_stripped)
+      out = out + unicode.len(tenv.orgline.kara[i].text_stripped)
     end
     return (kunit().ci or 1) + out
   end, ]]--
@@ -580,10 +580,10 @@ lnlib = {
         local tab = xoff0
         alignment = tab.alignment or tenv.orgline.styleref.align or 5
         anchorpoint = tab.anchorpoint or alignment or tenv.orgline.styleref.align or 5
-        xoff0 = tab.offset_x_start or tab.x0 or 0
-        yoff0 = tab.offset_x_start or tab.y0 or 0
-        xoff1 = tab.offset_x_end or tab.x1 or 0
-        yoff1 = tab.offset_x_end or tab.y1 or 0
+        xoff0 = tab.x_start or tab.x0 or 0
+        yoff0 = tab.y_start or tab.y0 or 0
+        xoff1 = tab.x_end or tab.x1 or 0
+        yoff1 = tab.y_end or tab.y1 or 0
         time0 = tab.time_start or tab.t0 or nil
         time1 = tab.time_end or tab.t1 or nil
         lsyl_mode = tab.lsyl_mode
