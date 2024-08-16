@@ -329,51 +329,6 @@ function template_loop(tenv, initmaxj)
 	return itor
 end
 
-local retime = function(mode, addstart, addend)
-	local line, syl = tenv.line, tenv.syl
-	local newstart, newend = line.start_time, line.end_time
-	addstart = addstart or 0
-	addend = addend or 0
-	if mode == "syl" then
-		newstart = line.start_time + syl.start_time + addstart
-		newend = line.start_time + syl.end_time + addend
-	elseif mode == "presyl" then
-		newstart = line.start_time + syl.start_time + addstart
-		newend = line.start_time + syl.start_time + addend
-	elseif mode == "postsyl" then
-		newstart = line.start_time + syl.end_time + addstart
-		newend = line.start_time + syl.end_time + addend
-	elseif mode == "line" then
-		newstart = line.start_time + addstart
-		newend = line.end_time + addend
-	elseif mode == "preline" then
-		newstart = line.start_time + addstart
-		newend = line.start_time + addend
-	elseif mode == "postline" then
-		newstart = line.end_time + addstart
-		newend = line.end_time + addend
-	elseif mode == "start2syl" then
-		newstart = line.start_time + addstart
-		newend = line.start_time + syl.start_time + addend
-	elseif mode == "syl2end" then
-		newstart = line.start_time + syl.end_time + addstart
-		newend = line.end_time + addend
-	elseif mode == "set" or mode == "abs" then
-		newstart = addstart
-		newend = addend
-	elseif mode == "sylpct" then
-		newstart = line.start_time + syl.start_time + addstart*syl.duration/100
-		newend = line.start_time + syl.start_time + addend*syl.duration/100
-	-- wishlist: something for fade-over effects,
-	-- "time between previous line and this" and
-	-- "time between this line and next"
-	end
-	line.start_time = newstart
-	line.end_time = newend
-	line.duration = newend - newstart
-	return ""
-end
-
 -- Apply the templates
 function apply_templates(meta, styles, subs, templates)
 	-- the environment the templates will run in
@@ -394,13 +349,55 @@ function apply_templates(meta, styles, subs, templates)
 	tenv.tenv = tenv
 
 	-- Define helper functions in tenv
-
-	tenv.retime = retime
+	tenv.retime = function(mode, addstart, addend)
+		local line, syl = tenv.line, tenv.syl
+		local newstart, newend = line.start_time, line.end_time
+		addstart = addstart or 0
+		addend = addend or 0
+		if mode == "syl" then
+			newstart = line.start_time + syl.start_time + addstart
+			newend = line.start_time + syl.end_time + addend
+		elseif mode == "presyl" then
+			newstart = line.start_time + syl.start_time + addstart
+			newend = line.start_time + syl.start_time + addend
+		elseif mode == "postsyl" then
+			newstart = line.start_time + syl.end_time + addstart
+			newend = line.start_time + syl.end_time + addend
+		elseif mode == "line" then
+			newstart = line.start_time + addstart
+			newend = line.end_time + addend
+		elseif mode == "preline" then
+			newstart = line.start_time + addstart
+			newend = line.start_time + addend
+		elseif mode == "postline" then
+			newstart = line.end_time + addstart
+			newend = line.end_time + addend
+		elseif mode == "start2syl" then
+			newstart = line.start_time + addstart
+			newend = line.start_time + syl.start_time + addend
+		elseif mode == "syl2end" then
+			newstart = line.start_time + syl.end_time + addstart
+			newend = line.end_time + addend
+		elseif mode == "set" or mode == "abs" then
+			newstart = addstart
+			newend = addend
+		elseif mode == "sylpct" then
+			newstart = line.start_time + syl.start_time + addstart*syl.duration/100
+			newend = line.start_time + syl.start_time + addend*syl.duration/100
+		-- wishlist: something for fade-over effects,
+		-- "time between previous line and this" and
+		-- "time between this line and next"
+		end
+		line.start_time = newstart
+		line.end_time = newend
+		line.duration = newend - newstart
+		return ""
+	end
 
 	tenv.k_retime = function(mode, addstart, addend)
 		local line, syl = tenv.line, tenv.syl
 		local oldstart, oldend = line.start_time, line.end_time
-		retime(mode, addstart, addend)
+		tenv.retime(mode, addstart, addend)
 		local newstart, newend = line.start_time, line.end_time
 		
 		syl.start_time = syl.start_time + (oldstart-newstart)
