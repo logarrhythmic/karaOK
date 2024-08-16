@@ -359,25 +359,46 @@ lnlib = {
     return ""
   end,
   line = {
-    tag = function (tags)
+    tag = function (tags, single_default)
       local ret = {}
-      if type(tags) == "string" then tags = {tags} end
-      for key,val in pairs(tags) do
-        table.insert(ret,tenv.orgline.raw:sub(findtag(tenv.orgline.raw, val)))
+      if type(tags) == "string" then tags = {[tags] = single_default or ""} end
+      for tag,default in pairs(tags) do
+        local found_tag = tenv.orgline.text:sub(findtag(tenv.orgline.text, tag))
+        if found_tag == "" then found_tag = default end
+        table.insert(ret, found_tag)
       end
       return table.concat(ret)
     end,
-    tags = function (tags, as_list)
+    tags = function (tags, arg2, arg3)
       local ret = {}
-      if type(tags) == "string" then tags = {tags} end
-      for i=1,#tags do
+      local single_default = ""
+      local as_list = false
+      if arg2 then 
+        if type(arg2) == "string" then
+          single_default = arg2
+        else
+          as_list = arg2
+        end
+      end
+      if arg3 then
+        as_list = arg3
+      end
+      if type(tags) == "string" then tags = {[tags] = single_default} end
+      for tag,default in pairs(tags) do
         local ci = 1
-        while ci < #tenv.orgline.raw and ci > 0 do
-          local si, ei = findtag(tenv.orgline.raw, tags[i], ci)
+        local instances_of_tag = {}
+        while ci < #tenv.orgline.text do
+          local si, ei = findtag(tenv.orgline.text, tag, ci)
           if ei and ei ~= 0 then
             ci = ei+1
-            table.insert(ret, tenv.orgline.raw:sub(si, ei))
-          else ci = -1 end
+            table.insert(instances_of_tag, tenv.orgline.text:sub(si, ei))
+          else break end
+        end
+        if #instances_of_tag == 0 then
+          table.insert(instances_of_tag, default)
+        end
+        for i,instance in ipairs(instances_of_tag) do
+          table.insert(ret, instance)
         end
       end
       return as_list and ret or table.concat(ret)
@@ -435,25 +456,47 @@ lnlib = {
   },
   
   syl = {
-    tag = function (tags) -- kara tags are lost forever on the syl level due to karaskel, but the rest can still be found
+    -- todo: reduce code duplication between these and the line variants
+    tag = function (tags, single_default) -- kara tags are lost forever on the syl level due to karaskel, but the rest can still be found
       local ret = {}
-      if type(tags) == "string" then tags = {tags} end
-      for i=1,#tags do
-        table.insert(ret,kunit().text:sub(findtag(kunit().text, tags[i])))
+      if type(tags) == "string" then tags = {[tags] = single_default or ""} end
+      for tag,default in pairs(tags) do
+        local found_tag = kunit().text:sub(findtag(kunit().text, tag))
+        if found_tag == "" then found_tag = default end
+        table.insert(ret, found_tag)
       end
       return table.concat(ret)
     end,
-    tags = function (tags, as_list)
+    tags = function (tags, arg2, arg3)
       local ret = {}
-      if type(tags) == "string" then tags = {tags} end
-      for i=1,#tags do
+      local single_default = ""
+      local as_list = false
+      if arg2 then 
+        if type(arg2) == "string" then
+          single_default = arg2
+        else
+          as_list = arg2
+        end
+      end
+      if arg3 then
+        as_list = arg3
+      end
+      if type(tags) == "string" then tags = {[tags] = single_default} end
+      for tag,default in pairs(tags) do
         local ci = 1
-        while ci < #kunit().text and ci > 0 do
-          local si, ei = findtag(kunit().text, tags[i], ci)
+        local instances_of_tag = {}
+        while ci < #kunit().text do
+          local si, ei = findtag(kunit().text, tag, ci)
           if ei and ei ~= 0 then
             ci = ei+1
-            table.insert(ret, kunit().text:sub(si, ei))
-          else ci = -1 end
+            table.insert(instances_of_tag, kunit().text:sub(si, ei))
+          else break end
+        end
+        if #instances_of_tag == 0 then
+          table.insert(instances_of_tag, default)
+        end
+        for i,instance in ipairs(instances_of_tag) do
+          table.insert(ret, instance)
         end
       end
       return as_list and ret or table.concat(ret)
