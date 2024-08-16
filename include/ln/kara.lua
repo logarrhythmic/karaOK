@@ -378,7 +378,7 @@ lnlib = {
       if arg2 then 
         if type(arg2) == "table" then
           defaults = arg2
-        else if type(arg2) == "string" then
+        elseif type(arg2) == "string" then
           defaults = {arg2}
         else 
           as_list = arg2
