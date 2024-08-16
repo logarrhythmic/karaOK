@@ -53,9 +53,9 @@ local function findtag(text, tagtype, startindex, endindex)
   if tagtype == "c" or tagtype == "1c" then tagtype = "1?c" end
   if startindex == nil then startindex = 1 end
   if endindex == nil then endindex = -1 end
-  if text == nil then return 0,0 end
+  if text == nil then return -1,-1 end
   local tagstart = text:find(("\\%s%s"):format(tagtype,valuestarts), startindex)
-  if tagstart == nil then return 0,0 end
+  if tagstart == nil then return -1,-1 end
   local depth = 0
   for i=startindex,tagstart do
     local c = text:sub(i,i)
@@ -63,7 +63,7 @@ local function findtag(text, tagtype, startindex, endindex)
     if c == ")" then depth = depth - 1 end
   end
   if depth ~= 0 then
-    return 0,0
+    return -1,-1
   end
   depth = 0
   local max_i = endindex
@@ -77,7 +77,7 @@ local function findtag(text, tagtype, startindex, endindex)
       return tagstart, i - 1
     end
   end
-  return 0,0
+  return -1,-1
 end
 
 local tenv
@@ -313,6 +313,46 @@ local function paircount(table)
   return count
 end
 
+-- text: string, tags: number-indexed table of string, defaults: string-indexed table of string
+local extract_first_matched_tags = function (text, tags, defaults)
+  local ret = {}
+  for i,tag in ipairs(tags) do
+    local tag_start, tag_end = findtag(text, tag)
+    local found_tag = defaults[tag] or ""
+    if tag_start ~= -1 and tag_end ~= -1 then
+      found_tag = text:sub(tag_start, tag_end)
+    end
+    table.insert(ret, found_tag)
+  end
+  return table.concat(ret)
+end
+
+-- text: string, tags: number-indexed table of string, defaults: string-indexed table of string, as_list: bool
+local extract_all_matched_tags = function (text, tags, defaults, as_list)
+  local ret = {}
+  for i,tag in ipairs(tags) do
+    local ci = 1
+    local instances_of_tag = {}
+    while ci < #text do
+      local si, ei = findtag(text, tag, ci)
+      if si ~= -1 and ei == -1 then
+        local instance = text:sub(si, ei)
+        table.insert(instances_of_tag, instance)
+        ci = ei+1
+      else 
+        break 
+      end
+    end
+    if #instances_of_tag == 0 then
+      table.insert(instances_of_tag, defaults[tag] or "")
+    end
+    for j,instance in ipairs(instances_of_tag) do
+      table.insert(ret, instance)
+    end
+  end
+  return as_list and ret or table.concat(ret)
+end
+
 local randomizer_table = {}
 local buffers = {}
 
@@ -360,26 +400,29 @@ lnlib = {
   end,
   line = {
     tag = function (tags, defaults)
-      local ret = {}
       if type(tags) == "string" then tags = {tags} end
-      if type(defaults) == "string" then defaults = {defaults} end
-      if not defaults then defaults = {nil} end
+      if type(defaults) == "string" then defaults = {[tags[0]] = defaults} end
+      if not defaults then defaults = {} end
       for i,tag in ipairs(tags) do
-        local found_tag = tenv.orgline.text:sub(findtag(tenv.orgline.text, tag))
-        if found_tag == "" then found_tag = defaults[i] or "" end
-        table.insert(ret, found_tag)
+        local indexed_default = defaults[i]
+        local named_default = defaults[tag]
+        if not indexed_default and not named_default then
+          defaults[tag] = ""
+        elseif not named_default then
+          defaults[tag] = indexed_default
+        end
       end
-      return table.concat(ret)
+      return extract_first_matched_tags(tenv.orgline.text, tags, defaults)
     end,
     tags = function (tags, arg2, arg3)
-      local ret = {}
-      local defaults = {nil}
+      if type(tags) == "string" then tags = {tags} end
+      local defaults = {}
       local as_list = false
       if arg2 then 
         if type(arg2) == "table" then
           defaults = arg2
         elseif type(arg2) == "string" then
-          defaults = {arg2}
+          defaults = {[tags[0]] = arg2}
         else 
           as_list = arg2
         end
@@ -387,25 +430,16 @@ lnlib = {
       if arg3 then
         as_list = arg3
       end
-      if type(tags) == "string" then tags = {tags} end
       for i,tag in ipairs(tags) do
-        local ci = 1
-        local instances_of_tag = {}
-        while ci < #tenv.orgline.text do
-          local si, ei = findtag(tenv.orgline.text, tag, ci)
-          if ei and ei ~= 0 then
-            ci = ei+1
-            table.insert(instances_of_tag, tenv.orgline.text:sub(si, ei))
-          else break end
-        end
-        if #instances_of_tag == 0 then
-          table.insert(instances_of_tag, defaults[i] or "")
-        end
-        for i,instance in ipairs(instances_of_tag) do
-          table.insert(ret, instance)
+        local indexed_default = defaults[i]
+        local named_default = defaults[tag]
+        if not indexed_default and not named_default then
+          defaults[tag] = ""
+        elseif not named_default then
+          defaults[tag] = indexed_default
         end
       end
-      return as_list and ret or table.concat(ret)
+      return extract_all_matched_tags(tenv.orgline.text, tags, defaults, as_list)
     end,
     style_c = function(n)
       n = n or 1
@@ -460,51 +494,48 @@ lnlib = {
   },
   
   syl = {
-    -- todo: reduce code duplication between these and the line variants, also the currently commented stuff would be a breaking change
-    --[[tag = function (tags, single_default) -- kara tags are lost forever on the syl level due to karaskel, but the rest can still be found
-      local ret = {}
-      if type(tags) == "string" then tags = {[tags] = single_default or ""} end
-      for tag,default in pairs(tags) do
-        local found_tag = kunit().text:sub(findtag(kunit().text, tag))
-        if found_tag == "" then found_tag = default end
-        table.insert(ret, found_tag)
+    tag = function (tags, defaults)
+      if type(tags) == "string" then tags = {tags} end
+      if type(defaults) == "string" then defaults = {[tags[0]] = defaults} end
+      if not defaults then defaults = {} end
+      for i,tag in ipairs(tags) do
+        local indexed_default = defaults[i]
+        local named_default = defaults[tag]
+        if not indexed_default and not named_default then
+          defaults[tag] = ""
+        elseif not named_default then
+          defaults[tag] = indexed_default
+        end
       end
-      return table.concat(ret)
+      return extract_first_matched_tags(kunit().text, tags, defaults)
     end,
     tags = function (tags, arg2, arg3)
-      local ret = {}
-      local single_default = ""
+      if type(tags) == "string" then tags = {tags} end
+      local defaults = {}
       local as_list = false
       if arg2 then 
-        if type(arg2) == "string" then
-          single_default = arg2
-        else
+        if type(arg2) == "table" then
+          defaults = arg2
+        elseif type(arg2) == "string" then
+          defaults = {[tags[0]] = arg2}
+        else 
           as_list = arg2
         end
       end
       if arg3 then
         as_list = arg3
       end
-      if type(tags) == "string" then tags = {[tags] = single_default} end
-      for tag,default in pairs(tags) do
-        local ci = 1
-        local instances_of_tag = {}
-        while ci < #kunit().text do
-          local si, ei = findtag(kunit().text, tag, ci)
-          if ei and ei ~= 0 then
-            ci = ei+1
-            table.insert(instances_of_tag, kunit().text:sub(si, ei))
-          else break end
-        end
-        if #instances_of_tag == 0 then
-          table.insert(instances_of_tag, default)
-        end
-        for i,instance in ipairs(instances_of_tag) do
-          table.insert(ret, instance)
+      for i,tag in ipairs(tags) do
+        local indexed_default = defaults[i]
+        local named_default = defaults[tag]
+        if not indexed_default and not named_default then
+          defaults[tag] = ""
+        elseif not named_default then
+          defaults[tag] = indexed_default
         end
       end
-      return as_list and ret or table.concat(ret)
-    end,.]]
+      return extract_all_matched_tags(kunit().text, tags, defaults, as_list)
+    end,
     c = function(n)
       n = n or 1
       local tag = lnlib.syl.tags(n .. "c")
