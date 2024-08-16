@@ -359,32 +359,36 @@ lnlib = {
     return ""
   end,
   line = {
-    tag = function (tags, single_default)
+    tag = function (tags, defaults)
       local ret = {}
-      if type(tags) == "string" then tags = {[tags] = single_default or ""} end
-      for tag,default in pairs(tags) do
+      if type(tags) == "string" then tags = {tags} end
+      if type(defaults) == "string" then defaults = {defaults} end
+      if not defaults then defaults = {nil} end
+      for i,tag in ipairs(tags) do
         local found_tag = tenv.orgline.text:sub(findtag(tenv.orgline.text, tag))
-        if found_tag == "" then found_tag = default end
+        if found_tag == "" then found_tag = defaults[i] or "" end
         table.insert(ret, found_tag)
       end
       return table.concat(ret)
     end,
     tags = function (tags, arg2, arg3)
       local ret = {}
-      local single_default = ""
+      local defaults = {nil}
       local as_list = false
       if arg2 then 
-        if type(arg2) == "string" then
-          single_default = arg2
-        else
+        if type(arg2) == "table" then
+          defaults = arg2
+        else if type(arg2) == "string" then
+          defaults = {arg2}
+        else 
           as_list = arg2
         end
       end
       if arg3 then
         as_list = arg3
       end
-      if type(tags) == "string" then tags = {[tags] = single_default} end
-      for tag,default in pairs(tags) do
+      if type(tags) == "string" then tags = {tags} end
+      for i,tag in ipairs(tags) do
         local ci = 1
         local instances_of_tag = {}
         while ci < #tenv.orgline.text do
@@ -395,7 +399,7 @@ lnlib = {
           else break end
         end
         if #instances_of_tag == 0 then
-          table.insert(instances_of_tag, default)
+          table.insert(instances_of_tag, defaults[i] or "")
         end
         for i,instance in ipairs(instances_of_tag) do
           table.insert(ret, instance)
@@ -456,8 +460,8 @@ lnlib = {
   },
   
   syl = {
-    -- todo: reduce code duplication between these and the line variants
-    tag = function (tags, single_default) -- kara tags are lost forever on the syl level due to karaskel, but the rest can still be found
+    -- todo: reduce code duplication between these and the line variants, also the currently commented stuff would be a breaking change
+    --[[tag = function (tags, single_default) -- kara tags are lost forever on the syl level due to karaskel, but the rest can still be found
       local ret = {}
       if type(tags) == "string" then tags = {[tags] = single_default or ""} end
       for tag,default in pairs(tags) do
@@ -500,7 +504,7 @@ lnlib = {
         end
       end
       return as_list and ret or table.concat(ret)
-    end,
+    end,.]]
     c = function(n)
       n = n or 1
       local tag = lnlib.syl.tags(n .. "c")
